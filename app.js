@@ -4,6 +4,13 @@ var webSocket = require('ws'),
     board = new five.Board(),
     led8, led12, led13, frame, rot = 0, diffRot = 179,
     rightEnabled, leftEnabled;
+    var Leap = require('leapjs');
+
+    console.log('[app.js] >>> leap '+Leap);
+    Leap.loop(function(frame) { 
+        //blijft constant tracen, niet uit commentaar halen
+        //console.log('[app.js] leap loop');
+    });
 
 board.on('ready', function() {
     led8 = new five.Led(8);
