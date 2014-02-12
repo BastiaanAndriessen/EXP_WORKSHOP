@@ -2,19 +2,22 @@ var webSocket = require('ws'),
     ws = new webSocket('ws://127.0.0.1:6437'),
     five = require('johnny-five'),
     board = new five.Board(),
-    led, frame;
+    led8, led12, led13, frame, rot = 0, diffRot = 179,
+    rightEnabled, leftEnabled;
 
 board.on('ready', function() {
-    led = new five.Led(13);
+    led8 = new five.Led(8);
+    led12 = new five.Led(12);
+    led13 = new five.Led(13);
+
+    var servo = new five.Servo({
+        pin: 10
+    });
+
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
-        if (frame.hands && frame.hands.length > 1) {
-            led.on();
-        }
-        else {
-            led.off();
-        }
 
+        //get left/right hand id
         var rightHandId = 0;
         var leftHandId = 0;
         if(frame.hands.length>0){
@@ -31,10 +34,45 @@ board.on('ready', function() {
             }
         }
 
-        //controle
-        console.log('test console');
-        console.log('[app.js] rightHandId: '+rightHandId+' leftHandId: '+leftHandId);
+        if(leftHandId!=0 && !leftEnabled){
+            led12.on();
+            leftEnabled = true;
+            servo.to(rot);
+            (rot<(360-diffRot))?rot += diffRot:rot=0;
+            console.log('[app.js] rot: '+rot);
+        }else if(leftHandId == 0){
+            led12.off();
+            leftEnabled = false;
+        }
 
+        if(rightHandId!=0 && !rightEnabled){
+            led13.on();
+            rightEnabled = true;
+            servo.to(rot);
+            (rot<(360-diffRot))?rot += diffRot:rot=0;
+            console.log('[app.js] rot: '+rot);
+        }else if(rightHandId == 0){
+            led13.off();
+            rightEnabled = false;
+        }
+    });
+
+    var sensor = new five.Sensor("A0");
+    var interval = 0;
+    sensor.scale([0, 100]).on("read", function() {
+        var self = this;
+        if(interval==0){
+            interval = setInterval(function(e){
+                console.log('[app.js] light sensor value: '+self.value);
+            },500);
+        }
+        if(this.value < 15){
+            led8.on();
+            var interval2 = setInterval(function(){
+                clearInterval(interval2);
+                led8.off();
+            }, 2000);
+        }
     });
 });
 
