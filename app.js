@@ -31,6 +31,7 @@ board.on('ready', function() {
             }
         }
 
+        //controle
         console.log('[app.js] rightHandId: '+rightHandId+' leftHandId: '+leftHandId);
 
     });
