@@ -5,12 +5,44 @@ var webSocket = require('ws'),
     led8, led12, led13, frame, rot = 0, diffRot = 179,
     rightEnabled, leftEnabled;
     var Leap = require('leapjs');
+    var controller = new Leap.Controller({enableGestures: true});
 
     console.log('[app.js] >>> leap '+Leap);
-    Leap.loop(function(frame) { 
-        //blijft constant tracen, niet uit commentaar halen
-        //console.log('[app.js] leap loop');
-    });
+    Leap.loop({enableGestures: true},
+        function(frame) 
+        {
+            var gestures = frame.gestures,
+            circle,
+            pointable,
+            direction,
+            normal;
+
+            if(gestures.length > 0) {
+
+            if(gestures[0].type == 'circle') {
+                circle = gestures[0];
+                circle.pointable = frame.pointable(circle.pointableIds[0]);
+
+                if(circle.state == 'start') {
+                    console.log('[app.js] >>>> circle started');
+
+                    clockwise = true;
+                } else if (circle.state == 'update') {
+                    direction = circle.pointable.direction;
+
+                    if(direction) {
+                        normal = circle.normal;
+                        clockwise = Leap.vec3.dot(direction, normal) > 0;
+                        if(clockwise) {
+
+                        } else {
+
+                        }
+                    }
+                }
+            }
+        }
+        });
 
 board.on('ready', function() {
     led8 = new five.Led(8);
@@ -32,7 +64,7 @@ board.on('ready', function() {
             if(frame.hands.length < 2){
                 rightHandId = frame.hands[0].id;
                 //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                console.log('[app.js] direction'+frame.hands[0].direction[0]);
+                //console.log('[app.js] direction'+frame.hands[0].direction[0]);
 
                 //console.log('right hand');
             }else{
