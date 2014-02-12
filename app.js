@@ -17,11 +17,17 @@ var webSocket = require('ws'),
             direction,
             normal;
 
+            //niet uit commentaar halen indien niet nodig
+            //console.log('[app.js] >>>> gestures');
+
+
             if(gestures.length > 0) {
 
             if(gestures[0].type == 'circle') {
                 circle = gestures[0];
                 circle.pointable = frame.pointable(circle.pointableIds[0]);
+                console.log('[app.js] >>>> type is circle');
+
 
                 if(circle.state == 'start') {
                     console.log('[app.js] >>>> circle started');
@@ -29,6 +35,8 @@ var webSocket = require('ws'),
                     clockwise = true;
                 } else if (circle.state == 'update') {
                     direction = circle.pointable.direction;
+                    console.log('[app.js] >>>> circle updated');
+
 
                     if(direction) {
                         normal = circle.normal;
