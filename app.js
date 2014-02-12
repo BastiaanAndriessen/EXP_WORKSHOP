@@ -17,19 +17,27 @@ board.on('ready', function() {
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
 
+
         //get left/right hand id
         var rightHandId = 0;
         var leftHandId = 0;
         if(frame.hands.length>0){
             if(frame.hands.length < 2){
                 rightHandId = frame.hands[0].id;
+                //direction 0 kleiner dan 0 = links, groter da 0 = rechts
+                console.log('[app.js] direction'+frame.hands[0].direction[0]);
+
+                //console.log('right hand');
             }else{
                 if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
                     rightHandId = frame.hands[0].id;
                     leftHandId = frame.hands[1].id;
+                    //console.log('left and right hand');
                 }else{
                     rightHandId = frame.hands[1].id;
                     leftHandId = frame.hands[0].id;
+                    //console.log('left and right hand');
+
                 }
             }
         }
@@ -55,6 +63,9 @@ board.on('ready', function() {
             led13.off();
             rightEnabled = false;
         }
+
+
+
     });
 
     var sensor = new five.Sensor("A0");
