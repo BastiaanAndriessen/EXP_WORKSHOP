@@ -32,6 +32,7 @@ board.on('ready', function() {
         }
 
         //controle
+        console.log('test console');
         console.log('[app.js] rightHandId: '+rightHandId+' leftHandId: '+leftHandId);
 
     });
