@@ -1,4 +1,4 @@
-var webSocket = require('ws'),
+/*var webSocket = require('ws'),
     ws = new webSocket('ws://127.0.0.1:6437'),
     five = require('johnny-five'),
     board = new five.Board(),
@@ -132,5 +132,25 @@ board.on('ready', function() {
             }, 2000);
         }
     });
+});*/
+
+var messageId = 0;
+
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = io = require('socket.io').listen(server);
+
+app.use(express.static(__dirname + '/public'));
+app.get('/', function(req, res){
+    res.sendfile(__dirname + '/public/index.html');
 });
+
+setInterval(function(e){
+    console.log('[app.js] emit message to sockets');
+    io.sockets.emit('message', 'test'+messageId);
+    messageId++;
+}, 1000);
+
+server.listen(1337);
 
