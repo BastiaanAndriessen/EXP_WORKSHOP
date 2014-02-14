@@ -2,7 +2,7 @@ $(document).ready(init);
 
 function init()
 {
-    var socket = io.connect(':1337');
+    var socket = io.connect(':1336');
 
     socket.on('message', function(data){
         updateMessageLog(data);

@@ -134,6 +134,9 @@ board.on('ready', function() {
     });
 });*/
 
+var currentServerPort = 1336;
+var opponentServerPort = 1336;
+
 var messageId = 0;
 
 var express = require('express');
@@ -150,7 +153,46 @@ setInterval(function(e){
     console.log('[app.js] emit message to sockets');
     io.sockets.emit('message', 'test'+messageId);
     messageId++;
+
+    /*var link = 'index.php?action=email&isAjax=true&isSubmit=false';
+
+    var email = $('#email').val();
+    var submit = $('input[type=submit]').val();
+    $.post(link, {email: email, bevestig: submit}, completeCheckInput);*/
 }, 1000);
 
-server.listen(1337);
+//send data to other server
+/*app.get('/test/', function(req, res){
+    console.log('[app.js] test send data');
+});
+
+var querystring = require('querystring');
+
+var data = querystring.stringify({
+    username: yourUsernameValue,
+    password: yourPasswordValue
+});
+
+var options = {
+    host: 'my.url',
+    port: 80,
+    path: '/test',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(data)
+    }
+};
+
+var req = http.request(options, function(res) {
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+        console.log("body: " + chunk);
+    });
+});
+
+req.write(data);
+req.end();*/
+
+server.listen(currentServerPort);
 
