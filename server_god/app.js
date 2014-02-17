@@ -139,7 +139,7 @@ var opponentServerPort = 1336;
 var playerIp = "172.30.33.174";
 var opponentIp = "172.30.33.174";
 
-var messageId = 0;
+var leapMotionDataReceived = 0;
 
 var express = require('express');
 var app = express();
@@ -149,27 +149,25 @@ var io = io = require('socket.io').listen(server);
 var zmq = require('zmq');
 var sock = zmq.socket('push');
 
+var webSocket = require('ws');
+var ws = new webSocket('ws://127.0.0.1:6437');
+
 app.use(express.static(__dirname + '/public'));
 app.get(playerIp+':'+currentServerPort, function(req, res){
-    console.log('[app.js] god: connected to root');
     res.sendfile(__dirname + '/public/index.html');
 });
 
-//client connection
-setInterval(function(e){
-    console.log('[app.js] emit message to sockets');
-    io.sockets.emit('message', 'test'+messageId);
-    messageId++;
-}, 5000);
-
-//send data to other server
+//establish opponent server connection
 sock.bindSync('tcp://'+opponentIp+':'+opponentServerPort);
-console.log('[app.js] god server: producer bound to port:'+opponentServerPort);
-setInterval(function(){
-    console.log('sending work');
-    sock.send('some work');
-}, 500);
+console.log('[app.js] god server: producer bound to port: '+opponentServerPort);
 
+//client connection
+ws.on('message', function(data, flags) {
+    frame = JSON.parse(data);
+    console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
+    //send data to other server
+    sock.send(frame);
+});
 
 server.listen(currentServerPort);
 

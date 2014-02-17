@@ -11,6 +11,6 @@ function init()
 
 function updateMessageLog(data){
     console.log('[clients.js] emitted message received: '+data);
-    $('#received_messages').append('<p>'+data+'</p>');
+    $('#received_messages').html('<p>'+data+'</p>');
     if($('#no_message').length > 0)$('#no_message').remove();
 }

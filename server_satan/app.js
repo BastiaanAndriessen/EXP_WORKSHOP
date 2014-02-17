@@ -139,7 +139,7 @@ var opponentServerPort = 1337;
 var playerIp = "172.30.33.174";
 var opponentIp = "172.30.33.174";
 
-var messageId = 0;
+var leapMotionDataReceived = 0;
 
 var express = require('express');
 var app = express();
@@ -155,25 +155,15 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
-//client connection
-setInterval(function(e){
-    console.log('[app.js] emit message to sockets');
-    io.sockets.emit('message', 'test'+messageId);
-    messageId++;
-
-    /*var link = 'index.php?action=email&isAjax=true&isSubmit=false';
-
-    var email = $('#email').val();
-    var submit = $('input[type=submit]').val();
-    $.post(link, {email: email, bevestig: submit}, completeCheckInput);*/
-}, 5000);
-
 //receive data from other server
 sock.connect('tcp://'+playerIp+':'+currentServerPort);
 console.log('[app.js] god server: worker connected to port:'+currentServerPort);
 
 sock.on('message', function(msg){
-    console.log('work: %s', msg.toString());
+    //client connection
+    leapMotionDataReceived++;
+    console.log('[app.js] satan server: received data: %s', msg.toString());
+    io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
 });
 
 server.listen(currentServerPort);
