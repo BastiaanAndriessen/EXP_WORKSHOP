@@ -9,6 +9,8 @@
         "ws": "latest",
 		"express": "latest",
 		"socket.io": "latest",
-        "zmq": "latest"
+        "zmq": "latest",
+        "speaker": "latest",
+        "player": "latest"
 	}
 }
