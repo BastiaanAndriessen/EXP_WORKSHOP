@@ -1,7 +1,7 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var playerIp = "172.30.33.174";
-var opponentIp = "172.30.33.174";
+var playerIp = "172.30.27.169";
+var opponentIp = "172.30.27.169";
 
 var messageId = 0;
 

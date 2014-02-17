@@ -136,8 +136,8 @@ board.on('ready', function() {
 
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var playerIp = "172.30.33.174";
-var opponentIp = "172.30.33.174";
+var playerIp = "172.30.27.169";
+var opponentIp = "172.30.27.169";
 
 var leapMotionDataReceived = 0;
 
@@ -158,6 +158,8 @@ app.get(playerIp+':'+currentServerPort, function(req, res){
 });
 
 //establish opponent server connection
+console.log('[app.js] '+opponentIp+':'+opponentServerPort);
+
 sock.bindSync('tcp://'+opponentIp+':'+opponentServerPort);
 console.log('[app.js] god server: producer bound to port: '+opponentServerPort);
 
