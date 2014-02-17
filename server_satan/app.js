@@ -349,12 +349,12 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
 
 //receive data from other server
 sock.connect('tcp://'+playerIp+':'+currentServerPort);
-console.log('[app.js] god server: worker connected to port:'+currentServerPort);
+console.log('[app.js] satan server: worker connected to port:'+currentServerPort);
 
 sock.on('message', function(msg){
     //client connection
     leapMotionDataReceived++;
-    console.log('[app.js] satan server: received data: %s', msg.toString());
+    console.log('[app.js] satan server: received data: %s', msg.toString()+' '+leapMotionDataReceived);
     io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
 });
 
