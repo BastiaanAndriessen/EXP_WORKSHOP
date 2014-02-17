@@ -134,8 +134,10 @@ board.on('ready', function() {
     });
 });*/
 
-var currentServerPort = 1336;
+var currentServerPort = 1337;
 var opponentServerPort = 1336;
+var playerIp = "172.30.33.174";
+var opponentIp = "172.30.33.174";
 
 var messageId = 0;
 
@@ -144,55 +146,30 @@ var app = express();
 var server = require('http').createServer(app);
 var io = io = require('socket.io').listen(server);
 
+var zmq = require('zmq');
+var sock = zmq.socket('push');
+
 app.use(express.static(__dirname + '/public'));
-app.get('/', function(req, res){
+app.get(playerIp+':'+currentServerPort, function(req, res){
+    console.log('[app.js] god: connected to root');
     res.sendfile(__dirname + '/public/index.html');
 });
 
+//client connection
 setInterval(function(e){
     console.log('[app.js] emit message to sockets');
     io.sockets.emit('message', 'test'+messageId);
     messageId++;
-
-    /*var link = 'index.php?action=email&isAjax=true&isSubmit=false';
-
-    var email = $('#email').val();
-    var submit = $('input[type=submit]').val();
-    $.post(link, {email: email, bevestig: submit}, completeCheckInput);*/
-}, 1000);
+}, 5000);
 
 //send data to other server
-/*app.get('/test/', function(req, res){
-    console.log('[app.js] test send data');
-});
+sock.bindSync('tcp://'+opponentIp+':'+opponentServerPort);
+console.log('[app.js] god server: producer bound to port:'+opponentServerPort);
+setInterval(function(){
+    console.log('sending work');
+    sock.send('some work');
+}, 500);
 
-var querystring = require('querystring');
-
-var data = querystring.stringify({
-    username: yourUsernameValue,
-    password: yourPasswordValue
-});
-
-var options = {
-    host: 'my.url',
-    port: 80,
-    path: '/test',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(data)
-    }
-};
-
-var req = http.request(options, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-        console.log("body: " + chunk);
-    });
-});
-
-req.write(data);
-req.end();*/
 
 server.listen(currentServerPort);
 

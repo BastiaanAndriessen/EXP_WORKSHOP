@@ -1,0 +1,13 @@
+{
+	"name": "pinball_satan_vs_god",
+	"description": "Software application for Pinball: Satan VS God. Player: Satan. Developed by Sarah Van Neyghem, Bastiaan Andriessen and Stef Van Doorsselaere",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+        "johnny-five": "latest",
+        "ws": "latest",
+		"express": "latest",
+		"socket.io": "latest",
+        "zmq": "latest"
+	}
+}

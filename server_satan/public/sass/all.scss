@@ -1,0 +1,15 @@
+//Import compass properties
+@import "compass/reset";
+@import "compass";
+
+html{
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+
+  body{
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
