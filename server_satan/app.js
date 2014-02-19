@@ -15,9 +15,8 @@ five = require('johnny-five'),
 board = new five.Board(),
 led6, led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
 rightEnabled, leftEnabled, godLeftEnabled, godRightEnabled;
-var Leap = require('leapjs');
-var Leap2 = require('leapjs');
 
+var Leap = require('leapjs');
 var controller = new Leap.Controller({enableGestures: true});
 
 var godFrame;
@@ -51,83 +50,79 @@ board.on('ready', function() {
 
 
     //server
-io.sockets.on('connection', function (socket) {
-    console.log('[app.js] satan server. connection established.');
+    io.sockets.on('connection', function (socket) {
+        console.log('[app.js] satan server. connection established.');
 
-    socket.on('LEAP_DATA', function (data) {
-        //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
-        //leapMotionDataReceived++;
+        socket.on('LEAP_DATA', function (data) {
+            //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
+            //leapMotionDataReceived++;
 
-        //console.log('[app.js] server_satan, data leap is '+data);
-        //console.log('[app.js] server_satan, data leap hands is '+data.hands);
+            //console.log('[app.js] server_satan, data leap is '+data);
+            //console.log('[app.js] server_satan, data leap hands is '+data.hands);
 
-        godFrame = JSON.parse(data);
-        var godRightHandId = 0;
-        var godLeftHandId = 0;
+            godFrame = JSON.parse(data);
+            var godRightHandId = 0;
+            var godLeftHandId = 0;
 
-        //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
+            //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
 
-        if(godFrame.hands.length>0){
-            if(godFrame.hands.length < 2){
-                godRightHandId = godFrame.hands[0].id;
-                //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                //console.log('[app.js] direction'+frame.hands[0].direction[0]);
-
-            }else{
-                if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
+            if(godFrame.hands.length>0){
+                if(godFrame.hands.length < 2){
                     godRightHandId = godFrame.hands[0].id;
-                    godLeftHandId = godFrame.hands[1].id;
+                    //direction 0 kleiner dan 0 = links, groter da 0 = rechts
+                    //console.log('[app.js] direction'+frame.hands[0].direction[0]);
+
                 }else{
-                    godRightHandId = godFrame.hands[1].id;
-                    godLeftHandId = godFrame.hands[0].id;
+                    if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
+                        godRightHandId = godFrame.hands[0].id;
+                        godLeftHandId = godFrame.hands[1].id;
+                    }else{
+                        godRightHandId = godFrame.hands[1].id;
+                        godLeftHandId = godFrame.hands[0].id;
+                    }
                 }
             }
-        }
 
-        if(godLeftHandId!=0 && !godLeftEnabled){
-            led6.on();
-            godLeftEnabled = true;
-            var player = new Player('pinball3.mp3');
+            if(godLeftHandId!=0 && !godLeftEnabled){
+                led6.on();
+                godLeftEnabled = true;
+                var player = new Player('pinball3.mp3');
 
-            player.play(function(err, player){
-                console.log('[app.js] play pinball3')
-            });
-            player.play();
-        }else if(godLeftHandId == 0){
-            led6.off();
-            godLeftEnabled = false;
-        }
+                player.play(function(err, player){
+                    console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(godLeftHandId == 0){
+                led6.off();
+                godLeftEnabled = false;
+            }
 
-        if(godRightHandId!=0 && !godRightEnabled){
-            led7.on();
-            godRightEnabled = true;
-            console.log('[app.js] rot: '+rot);
-            var player = new Player('pinball3.mp3');
+            if(godRightHandId!=0 && !godRightEnabled){
+                led7.on();
+                godRightEnabled = true;
+                console.log('[app.js] rot: '+rot);
+                var player = new Player('pinball3.mp3');
 
-            player.play(function(err, player){
-                console.log('[app.js] play pinball3')
-            });
-            player.play();
-        }else if(godRightHandId == 0){
-            led7.off();
-            godRightEnabled = false;
-        }
+                player.play(function(err, player){
+                    console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(godRightHandId == 0){
+                led7.off();
+                godRightEnabled = false;
+            }
+        });
 
+        socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
+            console.log('[app.js] satan server. received swipe directions: '+data);
+        });
 
-
-
-        
+        setInterval(function(e){
+            console.log('satan server. send score data to opponent server');
+            socket.emit('GOD_DATA', {score: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
+        }, 3000);
     });
 
-    setInterval(function(e){
-        console.log('satan server. send score data to opponent server');
-        //socket.emit('GOD_DATA', 'score: '+playerTwoPoints);
-        socket.emit('GOD_DATA', {score: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
-    }, 3000);
-});
-
-
-    console.log('>>>> board started');
     led8 = new five.Led(8);
     led12 = new five.Led(12);
     led13 = new five.Led(13);
@@ -136,7 +131,7 @@ io.sockets.on('connection', function (socket) {
         pin: 10
     });
 
-      ws.on('message', function(data, flags) {
+    ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
 
         var rightHandId = 0;
@@ -186,10 +181,6 @@ io.sockets.on('connection', function (socket) {
             led13.off();
             rightEnabled = false;
         }
-
-
-
-
     });
 
 
