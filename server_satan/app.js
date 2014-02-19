@@ -35,11 +35,28 @@ app.get('http://'+ip+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
+//server
+io.sockets.on('connection', function (socket) {
+    console.log('[app.js] satan server. connection established.');
+
+    socket.on('LEAP_DATA', function (data) {
+        io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
+        leapMotionDataReceived++;
+    });
+
+    setInterval(function(e){
+        console.log('satan server. send score data to opponent server');
+        socket.emit('GOD_DATA', 'score: '+Math.round(Math.random()*100)/100);
+    }, 3000);
+});
+
+
 //code arduino en leap
 console.log('[app.js] >>> leap '+Leap);
 
 board.on('ready', function() {
     //led7 = new five.Led(7);
+    console.log('>>>> board started');
     led8 = new five.Led(8);
     led12 = new five.Led(12);
     led13 = new five.Led(13);
@@ -48,11 +65,9 @@ board.on('ready', function() {
         pin: 10
     });
 
-    ws.on('message', function(data, flags) {
+      ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
 
-        //led7.on();
-        //get left/right hand id
         var rightHandId = 0;
         var leftHandId = 0;
         if(frame.hands.length>0){
@@ -61,17 +76,13 @@ board.on('ready', function() {
                 //direction 0 kleiner dan 0 = links, groter da 0 = rechts
                 //console.log('[app.js] direction'+frame.hands[0].direction[0]);
 
-                //console.log('right hand');
             }else{
                 if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
                     rightHandId = frame.hands[0].id;
                     leftHandId = frame.hands[1].id;
-                    //console.log('left and right hand');
                 }else{
                     rightHandId = frame.hands[1].id;
                     leftHandId = frame.hands[0].id;
-                    //console.log('left and right hand');
-
                 }
             }
         }
@@ -79,9 +90,6 @@ board.on('ready', function() {
         if(leftHandId!=0 && !leftEnabled){
             led12.on();
             leftEnabled = true;
-            servo.to(rot);
-            (rot<(360-diffRot))?rot += diffRot:rot=0;
-            console.log('[app.js] rot: '+rot);
             var player = new Player('pinball3.mp3');
 
             player.play(function(err, player){
@@ -96,8 +104,6 @@ board.on('ready', function() {
         if(rightHandId!=0 && !rightEnabled){
             led13.on();
             rightEnabled = true;
-            servo.to(rot);
-            (rot<(360-diffRot))?rot += diffRot:rot=0;
             console.log('[app.js] rot: '+rot);
             var player = new Player('pinball3.mp3');
 
@@ -115,6 +121,8 @@ board.on('ready', function() {
 
     });
 
+
+  
     var sensor = new five.Sensor("A0");
     var interval = 0;
     var oldValue = 100;
@@ -161,10 +169,10 @@ board.on('ready', function() {
                 //console.log('[app.js] light sensor value: '+self.value);
             },500);
         }
-        if(this.value < 40){
+        if(this.value < 60){
             led8.on();
-            console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
-            if(oldValuePush>40)
+            //console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
+            if(oldValuePush>60)
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
@@ -180,7 +188,7 @@ board.on('ready', function() {
                     rot=0;
                 }
                 servo.to(rot);
-                rot+=359;
+                rot+=20;
             }
             var intervalPush2 = setInterval(function(){
 
@@ -188,7 +196,7 @@ board.on('ready', function() {
                 led8.off();
             }, 2000);
         }
-        if(this.value>=40)
+        if(this.value>=60)
         {
             oldValuePush = this.value;
         }
@@ -197,7 +205,6 @@ board.on('ready', function() {
     
 
     var contServo = new five.Servo(9);
-    //contServo.sweep();
     rot = 0;
     var contServoInterval = setInterval(function(){
         if(rot>360)
@@ -207,8 +214,6 @@ board.on('ready', function() {
         contServo.to(rot);
         rot+=359;
     }, 800);
-    /*contServo.to(rot);
-    (rot<(360-diffRot))?rot += diffRot:rot=0;*/
 
 
     var pin = new five.Pin(4);
@@ -428,6 +433,7 @@ board.on('ready', function() {
 
 
 
+
 //receive data from other server
 /*sock.connect('tcp://'+playerIp+':'+currentServerPort);
 console.log('[app.js] satan server: worker connected to port:'+currentServerPort);
@@ -455,19 +461,6 @@ sock.on('message', function(msg){
     });
 });*/
 
-io.sockets.on('connection', function (socket) {
-    console.log('[app.js] satan server. connection established.');
-
-    socket.on('LEAP_DATA', function (data) {
-        io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
-        leapMotionDataReceived++;
-    });
-
-    setInterval(function(e){
-        console.log('satan server. send score data to opponent server');
-        socket.emit('GOD_DATA', 'score: '+Math.round(Math.random()*100)/100);
-    }, 3000);
-});
 
 server.listen(currentServerPort);
 
