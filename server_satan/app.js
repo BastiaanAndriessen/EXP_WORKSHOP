@@ -1,7 +1,7 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var playerIp = "172.30.27.169";
-var opponentIp = "172.30.27.169";
+var playerIp = "172.30.27.180";
+var opponentIp = "172.30.33.286";
 
 var messageId = 0;
 
@@ -15,13 +15,13 @@ var sock = zmq.socket('pull');
 
 var webSocket = require('ws'),
 ws = new webSocket('ws://127.0.0.1:6437');
-//Speaker = require('speaker'),
-//five = require('johnny-five'),
-//board = new five.Board(),
-//led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
-//rightEnabled, leftEnabled;
-//var Leap = require('leapjs');
-//var controller = new Leap.Controller({enableGestures: true});
+var Speaker = require('speaker'),
+five = require('johnny-five'),
+board = new five.Board(),
+led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
+rightEnabled, leftEnabled;
+var Leap = require('leapjs');
+var controller = new Leap.Controller({enableGestures: true});
 
 
 var earthquakeActivated = false, countTouched = 0, points = 0;
@@ -39,9 +39,9 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
 });
 
 //code arduino en leap
-//console.log('[app.js] >>> leap '+Leap);
+console.log('[app.js] >>> leap '+Leap);
 
-/*board.on('ready', function() {
+board.on('ready', function() {
     //led7 = new five.Led(7);
     led8 = new five.Led(8);
     led12 = new five.Led(12);
@@ -50,6 +50,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
     var servo = new five.Servo({
         pin: 10
     });
+
 
 
     ws.on('message', function(data, flags) {
@@ -121,6 +122,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
 
     var sensor = new five.Sensor("A0");
     var interval = 0;
+    var oldValue = 100;
     sensor.scale([0, 100]).on("read", function() {
         var self = this;
         if(interval==0){
@@ -130,12 +132,89 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
         }
         if(this.value < 15){
             led8.on();
+            //console.log('[app.js] this.value is '+this.value);
+            if(oldValue>15)
+            {
+                var player = new Player('pinball1.mp3');
+                player.play(function(err, player){
+                    console.log('[app.js] play pinball1')
+                });
+                player.play();
+                points += 50;
+                console.log('[app.js] points are '+points);
+                oldValue = this.value;
+            }
             var interval2 = setInterval(function(){
+
                 clearInterval(interval2);
                 led8.off();
             }, 2000);
         }
+        if(this.value>=15)
+        {
+            oldValue = this.value;
+        }
     });
+
+    var sensorPush = new five.Sensor("A1");
+    var intervalPush = 0;
+    var oldValuePush = 100;
+    sensorPush.scale([0, 100]).on("read", function() {
+        //console.log('[app.js] SensorPush value is '+this.value);
+        if(intervalPush==0){
+            intervalPush = setInterval(function(e){
+                //console.log('[app.js] light sensor value: '+self.value);
+            },500);
+        }
+        if(this.value < 40){
+            led8.on();
+            console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
+            if(oldValuePush>40)
+            {
+                var player = new Player('pinball1.mp3');
+                player.play(function(err, player){
+                    console.log('[app.js] play pinball1')
+                });
+                player.play();
+                points += 50;
+                console.log('[app.js] points are '+points);
+                oldValuePush = this.value;
+
+                if(rot>360)
+                {
+                    rot=0;
+                }
+                servo.to(rot);
+                rot+=359;
+            }
+            var intervalPush2 = setInterval(function(){
+
+                clearInterval(intervalPush2);
+                led8.off();
+            }, 2000);
+        }
+        if(this.value>=40)
+        {
+            oldValuePush = this.value;
+        }
+    });
+
+    
+
+    var contServo = new five.Servo(9);
+    //contServo.sweep();
+    rot = 0;
+    var contServoInterval = setInterval(function(){
+        if(rot>360)
+        {
+            rot=0;
+        }
+        contServo.to(rot);
+        rot+=359;
+    }, 800);
+    /*contServo.to(rot);
+    (rot<(360-diffRot))?rot += diffRot:rot=0;*/
+
 
     var pin = new five.Pin(4);
     pin.read(function(value) {
@@ -168,7 +247,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
     });
 
     //veranderen naar andere pin
-    var pinTilt = new five.Pin(4);
+    /*var pinTilt = new five.Pin(4);
     pinTilt.read(function(value) {
         console.log("[app.js] value button is "+value);
         if(value == 1)
@@ -194,7 +273,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
             console.log("[app.js] countTouched is "+tiltCountTouched);
             console.log("[app.js] your points are "+playerTwoPoints);
         }
-    });
+    });*/
 
     var pinTwo = new five.Pin(2);
     pinTwo.read(function(value) {
@@ -202,6 +281,11 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
         if(value == 1)
         {
             playerTwoPoints += 100;
+            var player = new Player('pinball1.mp3');
+            player.play(function(err, player){
+                console.log('[app.js] play pinball1')
+            });
+            player.play();
             if(countTouched>2)
             {
                 tiltCountTouched+=0;
@@ -210,10 +294,10 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
             }
             else
             {
-                countTouched += 1;
+                tiltCountTouched += 1;
             }
             console.log("[app.js] countTouched is "+tiltCountTouched);
-            console.log("[app.js] your points are "+tiltCountTouched);
+            console.log("[app.js] your points are "+playerTwoPoints);
         }
     });
 
@@ -345,7 +429,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
                  }
         }
     })
-});*/
+});
 
 //receive data from other server
 sock.connect('tcp://'+playerIp+':'+currentServerPort);
