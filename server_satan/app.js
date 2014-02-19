@@ -483,6 +483,7 @@ io.sockets.on('connection', function (socket) {
     })
 });
 
+/* ---> kopieren naar godserver  <--- */
 if(godFrame)
 {
     Leap.loop({enableGestures: true},
