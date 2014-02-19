@@ -10,7 +10,6 @@
 		"express": "latest",
 		"socket.io": "latest",
         "socket.io-client": "latest",
-        "zmq": "latest",
         "speaker": "latest",
         "player": "latest"
 	}

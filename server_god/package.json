@@ -8,6 +8,6 @@
         "ws": "latest",
 		"express": "latest",
 		"socket.io": "latest",
-        "zmq": "latest"
+        "socket.io-client": "latest"
 	}
 }
