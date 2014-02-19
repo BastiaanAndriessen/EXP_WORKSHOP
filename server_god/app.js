@@ -1,6 +1,6 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var ip = "172.30.33.178";
+var ip = "172.30.27.176";
 
 var express = require('express');
 var app = express();
@@ -11,7 +11,9 @@ var webSocket = require('ws');
 var ws = new webSocket('ws://127.0.0.1:6437');
 
 app.use(express.static(__dirname + '/public'));
-app.get(ip+':'+currentServerPort, function(req, res){
+app.get('localhost:'+currentServerPort, function(req, res){
+    ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+    console.log('[app.js] server god. requested root');
     res.sendfile(__dirname + '/public/index.html');
 });
 
@@ -23,11 +25,10 @@ var client = clientio.connect('http://'+ip+':'+opponentServerPort);
 client.on('connect', function(){
     console.log('[app.js] server god connected to opponent server');
 
-    ws.on('message', function(data, flags) {
-        frame = JSON.parse(data);
-        console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
+    ws.on('message', function(data, flags){
+        console.log('[app.js] server god. received leap data. Sending data to other server: '+Math.round(Math.random()*100)/100);
         //send data to other server
-        client.emit('LEAP_DATA', { my: 'data from leap' });
+        client.emit('LEAP_DATA', data);
     });
 
     /*setInterval(function(e){
@@ -40,4 +41,3 @@ client.on('connect', function(){
 });
 
 server.listen(currentServerPort);
-

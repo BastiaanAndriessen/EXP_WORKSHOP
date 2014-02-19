@@ -7,9 +7,6 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 
-var zmq = require('zmq');
-var sock = zmq.socket('pull');
-
 var webSocket = require('ws'),
 ws = new webSocket('ws://127.0.0.1:6437');
 /*var Speaker = require('speaker'),
