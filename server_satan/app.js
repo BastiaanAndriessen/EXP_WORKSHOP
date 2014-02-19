@@ -15,13 +15,13 @@ var sock = zmq.socket('pull');
 
 var webSocket = require('ws'),
 ws = new webSocket('ws://127.0.0.1:6437');
-/*var Speaker = require('speaker'),
+var Speaker = require('speaker'),
 five = require('johnny-five'),
 board = new five.Board(),
 led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
 rightEnabled, leftEnabled;
 var Leap = require('leapjs');
-var controller = new Leap.Controller({enableGestures: true});*/
+var controller = new Leap.Controller({enableGestures: true});
 
 
 var earthquakeActivated = false, countTouched = 0, points = 0;
@@ -39,7 +39,7 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
 });
 
 //code arduino en leap
-/*console.log('[app.js] >>> leap '+Leap);
+console.log('[app.js] >>> leap '+Leap);
 
 board.on('ready', function() {
     //led7 = new five.Led(7);
@@ -212,8 +212,8 @@ board.on('ready', function() {
         contServo.to(rot);
         rot+=359;
     }, 800);
-    //contServo.to(rot);
-    //(rot<(360-diffRot))?rot += diffRot:rot=0;
+    /*contServo.to(rot);
+    (rot<(360-diffRot))?rot += diffRot:rot=0;*/
 
 
     var pin = new five.Pin(4);
@@ -247,7 +247,7 @@ board.on('ready', function() {
     });
 
     //veranderen naar andere pin
-    var pinTilt = new five.Pin(4);
+    /*var pinTilt = new five.Pin(4);
     pinTilt.read(function(value) {
         console.log("[app.js] value button is "+value);
         if(value == 1)
@@ -273,7 +273,7 @@ board.on('ready', function() {
             console.log("[app.js] countTouched is "+tiltCountTouched);
             console.log("[app.js] your points are "+playerTwoPoints);
         }
-    });
+    });*/
 
     var pinTwo = new five.Pin(2);
     pinTwo.read(function(value) {
@@ -429,7 +429,9 @@ board.on('ready', function() {
                  }
         }
     })
-});*/
+});
+
+
 
 //receive data from other server
 /*sock.connect('tcp://'+playerIp+':'+currentServerPort);

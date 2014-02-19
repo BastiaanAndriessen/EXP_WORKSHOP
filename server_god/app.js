@@ -164,7 +164,7 @@ client.on('connect', function(){
 
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
-        console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
+        //console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
         //send data to other server
         //sock.send(frame);
 
@@ -177,7 +177,7 @@ client.on('connect', function(){
     }, 3000);*/
 
     client.on('GOD_DATA', function(data){
-        console.log('[app.js] server god. received score data');
+        console.log('[app.js] server god. received score data '+data);
     });
 });
 
