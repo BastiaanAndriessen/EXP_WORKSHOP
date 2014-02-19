@@ -1,9 +1,6 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var playerIp = "172.30.33.178";
-var opponentIp = "172.30.33.178";
-
-var messageId = 0;
+var ip = "172.30.33.178";
 
 var express = require('express');
 var app = express();
@@ -33,8 +30,8 @@ var leapMotionDataReceived = 0;
 
 
 app.use(express.static(__dirname + '/public'));
-console.log('[app.js] satan: get path http://'+playerIp+':'+currentServerPort);
-app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
+console.log('[app.js] satan: get path http://'+ip+':'+currentServerPort);
+app.get('http://'+ip+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
@@ -50,8 +47,6 @@ board.on('ready', function() {
     var servo = new five.Servo({
         pin: 10
     });
-
-
 
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
@@ -464,21 +459,15 @@ io.sockets.on('connection', function (socket) {
     console.log('[app.js] satan server. connection established.');
 
     socket.on('LEAP_DATA', function (data) {
-        console.log('satan server. received leap data', data);
         io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
         leapMotionDataReceived++;
     });
 
     setInterval(function(e){
+        console.log('satan server. send score data to opponent server');
         socket.emit('GOD_DATA', 'score: '+Math.round(Math.random()*100)/100);
     }, 3000);
 });
-
-/*var socket = io.connect(':'+opponentServerPort);
-socket.on('message', function(data){
-    console.log('[app.js] satan server: received leap motion data opponent');
-    io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
-});*/
 
 server.listen(currentServerPort);
 
