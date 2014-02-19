@@ -1,6 +1,7 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var ip = "172.30.33.178";
+//var ip = "172.30.33.178";
+var ip = "172.30.27.176";
 
 var express = require('express');
 var app = express();
@@ -15,8 +16,8 @@ ws = new webSocket('ws://127.0.0.1:6437');
 var Speaker = require('speaker'),
 five = require('johnny-five'),
 board = new five.Board(),
-led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
-rightEnabled, leftEnabled;
+led6, led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
+rightEnabled, leftEnabled, godLeftEnabled, godRightEnabled;
 var Leap = require('leapjs');
 var controller = new Leap.Controller({enableGestures: true});
 
@@ -42,6 +43,51 @@ io.sockets.on('connection', function (socket) {
     socket.on('LEAP_DATA', function (data) {
         io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
         leapMotionDataReceived++;
+
+        //console.log('[app.js] server_satan, data leap is '+data);
+        //console.log('[app.js] server_satan, data leap hands is '+data.hands);
+
+        var godRightHandId = 0;
+        var godLeftHandId = 0;
+        led6 = new five.Led(6);
+        led7 = new five.Led(7);
+        if(data.hands.length>0){
+            if(data.hands.length < 2){
+                godRightHandId = data.hands[0].id;
+                console.log('[app.js] god data one hand');
+            }else{
+                if(data.hands[0].palmPosition[0] > data.hands[1].palmPosition[0]){
+                    godRightHandId = data.hands[0].id;
+                    godLeftHandId = data.hands[1].id;
+                    console.log('[app.js] god data two hands');
+                }else{
+                    godRightHandId = data.hands[1].id;
+                    godLeftHandId = data.hands[0].id;
+                    console.log('[app.js] god data two hands');
+                }
+            }
+        }
+         if(godLeftHandId!=0 && !godLeftEnabled){
+            godLeftEnabled = true;
+            led6.on();
+
+            console.log('[app.js] godLeftHandId != 0 && !godLeftEnabled');
+        }else if(godLeftHandId == 0){
+            led6.off();
+            godLeftEnabled = false;
+        }
+
+        if(godRightHandId!=0 && !godRightEnabled){
+            godRightEnabled = true;
+            led7.on();
+            console.log('[app.js] godRightHandId != 0 && !godRightEnabled');   
+        }else if(godRightHandId == 0){
+            led7.off();
+            godRightEnabled = false;
+        }
+
+
+        
     });
 
     setInterval(function(e){

@@ -27,7 +27,7 @@ client.on('connect', function(){
         frame = JSON.parse(data);
         //console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
         //send data to other server
-        client.emit('LEAP_DATA', { my: 'data from leap' });
+        client.emit('LEAP_DATA', frame);
     });
 
     /*setInterval(function(e){
