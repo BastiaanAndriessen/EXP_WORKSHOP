@@ -7,9 +7,9 @@ Syntax error: File to import not found or unreadable: compass/reset.
 2: @import "compass/reset";
 3: @import "compass";
 4: 
-5: html{
-6:   height: 100%;
-7:   overflow-y: hidden;
+5: @font-face{
+6:   font-family: 'COUTURE';
+7:   src: url('../assets/font/couture-bold-webfont.eot');
 
 Backtrace:
 all.scss:2
@@ -50,4 +50,4 @@ all.scss:2
 body:before {
   white-space: pre;
   font-family: monospace;
-  content: "Syntax error: File to import not found or unreadable: compass/reset.\A               Load path: /Applications/MAMP/htdocs/EXP_WORKSHOP/server_god/public/sass\A         on line 2 of all.scss\A \A 1: //Import compass properties\A 2: @import \"compass/reset\";\A 3: @import \"compass\";\A 4: \A 5: html{\A 6:   height: 100%;\A 7:   overflow-y: hidden;"; }
+  content: "Syntax error: File to import not found or unreadable: compass/reset.\A               Load path: /Applications/MAMP/htdocs/EXP_WORKSHOP/server_god/public/sass\A         on line 2 of all.scss\A \A 1: //Import compass properties\A 2: @import \"compass/reset\";\A 3: @import \"compass\";\A 4: \A 5: @font-face{\A 6:   font-family: 'COUTURE';\A 7:   src: url('../assets/font/couture-bold-webfont.eot');"; }

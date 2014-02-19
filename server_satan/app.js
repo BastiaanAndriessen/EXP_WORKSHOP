@@ -1,14 +1,14 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var playerIp = "172.30.33.174";
-var opponentIp = "172.30.33.174";
+var playerIp = "172.30.33.178";
+var opponentIp = "172.30.33.178";
 
 var messageId = 0;
 
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server);
 
 var zmq = require('zmq');
 var sock = zmq.socket('pull');
@@ -348,15 +348,51 @@ app.get('http://'+playerIp+':'+currentServerPort, function(req, res){
 });*/
 
 //receive data from other server
-sock.connect('tcp://'+playerIp+':'+currentServerPort);
+/*sock.connect('tcp://'+playerIp+':'+currentServerPort);
 console.log('[app.js] satan server: worker connected to port:'+currentServerPort);
 
 sock.on('message', function(msg){
     //client connection
     leapMotionDataReceived++;
-    console.log('[app.js] satan server: received data: %s', msg.toString()+' '+leapMotionDataReceived);
+    //console.log('[app.js] satan server: received data: %s', msg.toString()+' '+leapMotionDataReceived);
     io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
+});*/
+
+
+//connect to opponent server
+/*client.on('connect', function(){
+    console.log('[app.js] server satan connected to opponent server');
+
+    //connect to client
+    io.sockets.on('connection', function (socket) {
+        //catch client events
+        socket.on('client', function(data) {
+            console.log('clientserver data', data);
+            //send data to opponent server
+            client.emit('server custom event', { my: 'data' });
+        });
+    });
+});*/
+
+io.sockets.on('connection', function (socket) {
+    console.log('[app.js] satan server. connection established.');
+
+    socket.on('LEAP_DATA', function (data) {
+        console.log('satan server. received leap data', data);
+        io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
+        leapMotionDataReceived++;
+    });
+
+    setInterval(function(e){
+        socket.emit('GOD_DATA', 'score: '+Math.round(Math.random()*100)/100);
+    }, 3000);
 });
+
+/*var socket = io.connect(':'+opponentServerPort);
+socket.on('message', function(data){
+    console.log('[app.js] satan server: received leap motion data opponent');
+    io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
+});*/
 
 server.listen(currentServerPort);
 

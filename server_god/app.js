@@ -136,18 +136,18 @@ board.on('ready', function() {
 
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var playerIp = "172.30.33.174";
-var opponentIp = "172.30.33.174";
+var playerIp = "172.30.33.178";
+var opponentIp = "172.30.33.178";
 
 var leapMotionDataReceived = 0;
 
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server);
 
-var zmq = require('zmq');
-var sock = zmq.socket('push');
+//var zmq = require('zmq');
+//var sock = zmq.socket('push');
 
 var webSocket = require('ws');
 var ws = new webSocket('ws://127.0.0.1:6437');
@@ -157,17 +157,39 @@ app.get(playerIp+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
-//establish opponent server connection
-sock.bindSync('tcp://'+opponentIp+':'+opponentServerPort);
-console.log('[app.js] god server: producer bound to port: '+opponentServerPort);
-
 //client connection
-ws.on('message', function(data, flags) {
-    frame = JSON.parse(data);
-    console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
-    //send data to other server
-    sock.send(frame);
+var clientio = require('socket.io-client');
+console.log('[app.js] server god: satan server http://'+opponentIp+':'+opponentServerPort);
+var client = clientio.connect('http://'+opponentIp+':'+opponentServerPort);
+
+client.on('connect', function(){
+    console.log('[app.js] server god connected to opponent server');
+
+    ws.on('message', function(data, flags) {
+        frame = JSON.parse(data);
+        console.log('[app.js] server god. received leap data: '+frame+'. Sending data to other server');
+        //send data to other server
+        //sock.send(frame);
+
+        //io.sockets.emit('message', "leap motion data send");
+        client.emit('LEAP_DATA', { my: 'data from leap' });
+    });
+
+    /*setInterval(function(e){
+        client.emit('LEAP_DATA', { my: 'data from interval: '+Math.round(Math.random()*100)/100 });
+    }, 3000);*/
+
+    client.on('GOD_DATA', function(data){
+        console.log('[app.js] server god. received score data');
+    });
 });
+
+/*io.sockets.on('connection', function (socket) {
+    console.log('connection');
+    socket.on('server custom event', function (data) {
+        console.log('serverserver data', data);
+    });
+});*/
 
 server.listen(currentServerPort);
 

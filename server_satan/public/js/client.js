@@ -4,7 +4,7 @@ function init()
 {
     var socket = io.connect(':1336');
 
-    socket.on('message', function(data){
+    socket.on('leap', function(data){
         updateMessageLog(data);
     });
 }
