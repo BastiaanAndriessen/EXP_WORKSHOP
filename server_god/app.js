@@ -36,7 +36,7 @@ client.on('connect', function(){
     }, 3000);*/
 
     client.on('GOD_DATA', function(data){
-        console.log('[app.js] server god. received score data: '+data);
+        console.log('[app.js] server god. received score data '+data);
     });
 });
 

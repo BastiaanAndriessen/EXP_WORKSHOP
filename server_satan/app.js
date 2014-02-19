@@ -1,6 +1,7 @@
 var currentServerPort = 1336;
 var opponentServerPort = 1337;
-var ip = "172.30.33.178";
+//var ip = "172.30.33.178";
+var ip = "172.30.27.176";
 
 var express = require('express');
 var app = express();
@@ -9,13 +10,17 @@ var io = require('socket.io').listen(server);
 
 var webSocket = require('ws'),
 ws = new webSocket('ws://127.0.0.1:6437');
-/*var Speaker = require('speaker'),
+var Speaker = require('speaker'),
 five = require('johnny-five'),
 board = new five.Board(),
-led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
-rightEnabled, leftEnabled;
+led6, led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
+rightEnabled, leftEnabled, godLeftEnabled, godRightEnabled;
 var Leap = require('leapjs');
-var controller = new Leap.Controller({enableGestures: true});*/
+var Leap2 = require('leapjs');
+
+var controller = new Leap.Controller({enableGestures: true});
+
+var godFrame;
 
 
 var earthquakeActivated = false, countTouched = 0, points = 0;
@@ -26,17 +31,103 @@ var Player = require('player');
 var leapMotionDataReceived = 0;
 
 
+
+
 app.use(express.static(__dirname + '/public'));
 console.log('[app.js] satan: get path http://'+ip+':'+currentServerPort);
 app.get('http://'+ip+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
+
+
 //code arduino en leap
-/*console.log('[app.js] >>> leap '+Leap);
+console.log('[app.js] >>> leap '+Leap);
 
 board.on('ready', function() {
     //led7 = new five.Led(7);
+            led6 = new five.Led(6);
+        led7 = new five.Led(7);
+
+
+    //server
+io.sockets.on('connection', function (socket) {
+    console.log('[app.js] satan server. connection established.');
+
+    socket.on('LEAP_DATA', function (data) {
+        //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
+        //leapMotionDataReceived++;
+
+        //console.log('[app.js] server_satan, data leap is '+data);
+        //console.log('[app.js] server_satan, data leap hands is '+data.hands);
+
+        godFrame = JSON.parse(data);
+        var godRightHandId = 0;
+        var godLeftHandId = 0;
+
+        //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
+
+        if(godFrame.hands.length>0){
+            if(godFrame.hands.length < 2){
+                godRightHandId = godFrame.hands[0].id;
+                //direction 0 kleiner dan 0 = links, groter da 0 = rechts
+                //console.log('[app.js] direction'+frame.hands[0].direction[0]);
+
+            }else{
+                if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
+                    godRightHandId = godFrame.hands[0].id;
+                    godLeftHandId = godFrame.hands[1].id;
+                }else{
+                    godRightHandId = godFrame.hands[1].id;
+                    godLeftHandId = godFrame.hands[0].id;
+                }
+            }
+        }
+
+        if(godLeftHandId!=0 && !godLeftEnabled){
+            led6.on();
+            godLeftEnabled = true;
+            var player = new Player('pinball3.mp3');
+
+            player.play(function(err, player){
+                console.log('[app.js] play pinball3')
+            });
+            player.play();
+        }else if(godLeftHandId == 0){
+            led6.off();
+            godLeftEnabled = false;
+        }
+
+        if(godRightHandId!=0 && !godRightEnabled){
+            led7.on();
+            godRightEnabled = true;
+            console.log('[app.js] rot: '+rot);
+            var player = new Player('pinball3.mp3');
+
+            player.play(function(err, player){
+                console.log('[app.js] play pinball3')
+            });
+            player.play();
+        }else if(godRightHandId == 0){
+            led7.off();
+            godRightEnabled = false;
+        }
+
+
+
+
+        
+    });
+
+    setInterval(function(e){
+        console.log('satan server. send score data to opponent server');
+        //socket.emit('GOD_DATA', 'score: '+playerTwoPoints);
+        socket.emit('GOD_DATA', {score: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
+    }, 3000);
+});
+
+
+    console.log('>>>> board started');
     led8 = new five.Led(8);
     led12 = new five.Led(12);
     led13 = new five.Led(13);
@@ -45,11 +136,9 @@ board.on('ready', function() {
         pin: 10
     });
 
-    ws.on('message', function(data, flags) {
+      ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
 
-        //led7.on();
-        //get left/right hand id
         var rightHandId = 0;
         var leftHandId = 0;
         if(frame.hands.length>0){
@@ -58,17 +147,13 @@ board.on('ready', function() {
                 //direction 0 kleiner dan 0 = links, groter da 0 = rechts
                 //console.log('[app.js] direction'+frame.hands[0].direction[0]);
 
-                //console.log('right hand');
             }else{
                 if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
                     rightHandId = frame.hands[0].id;
                     leftHandId = frame.hands[1].id;
-                    //console.log('left and right hand');
                 }else{
                     rightHandId = frame.hands[1].id;
                     leftHandId = frame.hands[0].id;
-                    //console.log('left and right hand');
-
                 }
             }
         }
@@ -76,9 +161,6 @@ board.on('ready', function() {
         if(leftHandId!=0 && !leftEnabled){
             led12.on();
             leftEnabled = true;
-            servo.to(rot);
-            (rot<(360-diffRot))?rot += diffRot:rot=0;
-            console.log('[app.js] rot: '+rot);
             var player = new Player('pinball3.mp3');
 
             player.play(function(err, player){
@@ -93,8 +175,6 @@ board.on('ready', function() {
         if(rightHandId!=0 && !rightEnabled){
             led13.on();
             rightEnabled = true;
-            servo.to(rot);
-            (rot<(360-diffRot))?rot += diffRot:rot=0;
             console.log('[app.js] rot: '+rot);
             var player = new Player('pinball3.mp3');
 
@@ -112,6 +192,8 @@ board.on('ready', function() {
 
     });
 
+
+  
     var sensor = new five.Sensor("A0");
     var interval = 0;
     var oldValue = 100;
@@ -158,10 +240,10 @@ board.on('ready', function() {
                 //console.log('[app.js] light sensor value: '+self.value);
             },500);
         }
-        if(this.value < 40){
+        if(this.value < 60){
             led8.on();
-            console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
-            if(oldValuePush>40)
+            //console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
+            if(oldValuePush>60)
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
@@ -177,7 +259,7 @@ board.on('ready', function() {
                     rot=0;
                 }
                 servo.to(rot);
-                rot+=359;
+                rot+=20;
             }
             var intervalPush2 = setInterval(function(){
 
@@ -185,7 +267,7 @@ board.on('ready', function() {
                 led8.off();
             }, 2000);
         }
-        if(this.value>=40)
+        if(this.value>=60)
         {
             oldValuePush = this.value;
         }
@@ -194,7 +276,6 @@ board.on('ready', function() {
     
 
     var contServo = new five.Servo(9);
-    //contServo.sweep();
     rot = 0;
     var contServoInterval = setInterval(function(){
         if(rot>360)
@@ -204,8 +285,6 @@ board.on('ready', function() {
         contServo.to(rot);
         rot+=359;
     }, 800);
-    //contServo.to(rot);
-    //(rot<(360-diffRot))?rot += diffRot:rot=0;
 
 
     var pin = new five.Pin(4);
@@ -239,7 +318,7 @@ board.on('ready', function() {
     });
 
     //veranderen naar andere pin
-    var pinTilt = new five.Pin(4);
+    /*var pinTilt = new five.Pin(4);
     pinTilt.read(function(value) {
         console.log("[app.js] value button is "+value);
         if(value == 1)
@@ -265,7 +344,7 @@ board.on('ready', function() {
             console.log("[app.js] countTouched is "+tiltCountTouched);
             console.log("[app.js] your points are "+playerTwoPoints);
         }
-    });
+    });*/
 
     var pinTwo = new five.Pin(2);
     pinTwo.read(function(value) {
@@ -278,10 +357,11 @@ board.on('ready', function() {
                 console.log('[app.js] play pinball1')
             });
             player.play();
-            if(countTouched>2)
+            if(tiltCountTouched>2)
             {
                 tiltCountTouched+=0;
                 tiltActivated = true;
+                console.log('>>>>>>>>>> tiltActivated');
 
             }
             else
@@ -311,27 +391,7 @@ board.on('ready', function() {
             for (var i = 0; i < frame.gestures.length; i++) {
                   var gesture = frame.gestures[i];
 
-                  if(gesture.type == "circle")
-                  {
-                        console.log('[app.js] circle');
-                        if(tiltActivated)
-                        {
-                            var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-                                tiltActivated = false;
-                                tiltCountTouched = 0;
-                        }
-                  }
-                  else if (gesture.type == "swipe") {
+                  if (gesture.type == "swipe") {
                       //Classify swipe as either horizontal or vertical
                       var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
                       //Classify as right-left or up-down
@@ -421,7 +481,102 @@ board.on('ready', function() {
                  }
         }
     })
-});*/
+});
+
+if(godFrame)
+{
+    Leap.loop({enableGestures: true},
+        function(godFrame)
+        {
+            var gestures = frame.godFrame,
+            circle,
+            pointable,
+            direction,
+            normal;
+
+            //niet uit commentaar halen indien niet nodig
+            //console.log('[app.js] >>>> gestures');
+
+
+            if(gestures.length > 0) {
+
+            for (var i = 0; i < godFrame.gestures.length; i++) {
+                  var gesture = godFrame.gestures[i];
+
+
+                 if (gesture.type == "swipe") {
+                      //Classify swipe as either horizontal or vertical
+                        console.log('tiltActivated >>>>>> swipe');
+                      var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
+                      //Classify as right-left or up-down
+
+                      if(isHorizontal){
+                          if(gesture.direction[0] > 0){
+                              swipeDirection = "right";
+                              if(tiltActivated)
+                              {
+                                var player = new Player('pinball2.mp3');
+
+                                player.play(function(err, player){
+                                    console.log('[app.js] play pinball2')
+                                });
+                                player.play();
+                                led8.on();
+                                var gestureInterval = setInterval(function(){
+                                    clearInterval(gestureInterval);
+                                    led8.off();
+                                }, 2000);
+                                console.log('[app.js] horizontal right');
+                                tiltActivated = false;
+                                tiltCountTouched = 0;
+                              }
+                          } else {
+                              swipeDirection = "left";
+                              if(tiltActivated)
+                              {
+                                var player = new Player('pinball2.mp3');
+
+                                player.play(function(err, player){
+                                    console.log('[app.js] play pinball2')
+                                });
+                                player.play();
+                                led8.on();
+                                var gestureInterval = setInterval(function(){
+                                    clearInterval(gestureInterval);
+                                    led8.off();
+                                }, 2000);
+                                console.log('[app.js] horizontal left');
+                                tiltActivated = false;
+                                tiltCountTouched = 0;
+                              }
+                          } 
+                      }
+                      else{
+                         if(gesture.direction[1] > 0){
+                         var player = new Player('pinball2.mp3');
+
+                        player.play(function(err, player){
+                            console.log('[app.js] play pinball2')
+                        });
+                        player.play();
+                        led8.on();
+                        var gestureInterval = setInterval(function(){
+                            clearInterval(gestureInterval);
+                            led8.off();
+                        }, 2000);
+                        console.log('[app.js] horizontal right');
+                        tiltActivated = false;
+                        tiltCountTouched = 0;
+                    }
+                      }
+                  }
+              }
+          }
+      });
+
+
+}
+
 
 //receive data from other server
 /*sock.connect('tcp://'+playerIp+':'+currentServerPort);
@@ -450,19 +605,6 @@ sock.on('message', function(msg){
     });
 });*/
 
-io.sockets.on('connection', function (socket) {
-    console.log('[app.js] satan server. connection established.');
-
-    socket.on('LEAP_DATA', function (data) {
-        io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
-        leapMotionDataReceived++;
-    });
-
-    setInterval(function(e){
-        console.log('satan server. send score data to opponent server');
-        socket.emit('GOD_DATA', 'score: '+Math.round(Math.random()*100)/100);
-    }, 3000);
-});
 
 server.listen(currentServerPort);
 
