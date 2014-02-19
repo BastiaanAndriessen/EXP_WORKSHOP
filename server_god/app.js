@@ -136,7 +136,7 @@ board.on('ready', function() {
 
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var playerIp = "172.30.33.178";
+var playerIp = "172.30.27.176";
 var opponentIp = "172.30.33.178";
 
 var leapMotionDataReceived = 0;
