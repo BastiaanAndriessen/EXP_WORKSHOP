@@ -103,7 +103,7 @@ board.on('ready', function() {
                 var player = new Player('pinball3.mp3');
 
                 player.play(function(err, player){
-                    console.log('[app.js] play pinball3')
+                    //console.log('[app.js] play pinball3')
                 });
                 player.play();
             }else if(godRightHandId == 0){
@@ -114,11 +114,42 @@ board.on('ready', function() {
 
         socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
             console.log('[app.js] satan server. received swipe directions: '+data);
+            if(data == 'true')
+            {
+                console.log('[app.js] satan server. >>>>> TRUE');
+                if(tiltActivated)
+                {
+                    var player = new Player('pinball2.mp3');
+
+                                player.play(function(err, player){
+                                    //console.log('[app.js] play pinball2')
+                                });
+                                player.play();
+                                led8.on();
+                                var gestureInterval = setInterval(function(){
+                                    clearInterval(gestureInterval);
+                                    led8.off();
+                                }, 2000);
+
+                    tiltActivated = false;
+                    tiltCountTouched = 0;
+                }
+            }
+            /*console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[0]);
+            console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[1]);
+            if(tiltActivated)
+            {
+                if(data.swipeDirection[0]==1 || data.swipeDirection[1]==1)
+                {
+                    tiltActivated = false;
+                    tiltCountTouched = 0;
+                }
+            }*/
         });
 
         setInterval(function(e){
-            console.log('satan server. send score data to opponent server');
-            socket.emit('GOD_DATA', {score: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
+            //console.log('satan server. send score data to opponent server');
+            socket.emit('GOD_DATA', {score1:points ,score2: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
         }, 3000);
     });
 
@@ -158,7 +189,7 @@ board.on('ready', function() {
             var player = new Player('pinball3.mp3');
 
             player.play(function(err, player){
-                console.log('[app.js] play pinball3')
+                //console.log('[app.js] play pinball3')
             });
             player.play();
         }else if(leftHandId == 0){
@@ -169,11 +200,11 @@ board.on('ready', function() {
         if(rightHandId!=0 && !rightEnabled){
             led13.on();
             rightEnabled = true;
-            console.log('[app.js] rot: '+rot);
+            //console.log('[app.js] rot: '+rot);
             var player = new Player('pinball3.mp3');
 
             player.play(function(err, player){
-                console.log('[app.js] play pinball3')
+                //console.log('[app.js] play pinball3')
             });
             player.play();
         }else if(rightHandId == 0){
@@ -201,7 +232,7 @@ board.on('ready', function() {
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
-                    console.log('[app.js] play pinball1')
+                    //console.log('[app.js] play pinball1')
                 });
                 player.play();
                 points += 50;
@@ -237,7 +268,7 @@ board.on('ready', function() {
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
-                    console.log('[app.js] play pinball1')
+                   // console.log('[app.js] play pinball1')
                 });
                 player.play();
                 points += 50;
@@ -276,15 +307,26 @@ board.on('ready', function() {
         rot+=359;
     }, 800);
 
+    var contFan = new five.Servo(10);
+    var contRot = 0;
+    var contFanInterval = setInterval(function(){
+        if(contRot>360)
+        {
+            contRot=0;
+        }
+        contFan.to(contRot);
+        contRot+=359;
+    }, 100);
+
 
     var pin = new five.Pin(4);
     pin.read(function(value) {
-        console.log("[app.js] value button is "+value);
+        //console.log("[app.js] value button is "+value);
         if(value == 1)
         {
             var player = new Player('pinball1.mp3');
             player.play(function(err, player){
-                console.log('[app.js] play pinball1')
+                //console.log('[app.js] play pinball1')
             });
             player.play();
             points += 100;
@@ -338,20 +380,20 @@ board.on('ready', function() {
 
     var pinTwo = new five.Pin(2);
     pinTwo.read(function(value) {
-        console.log("[app.js] value button is "+value);
+        //console.log("[app.js] value button is "+value);
         if(value == 1)
         {
             playerTwoPoints += 100;
             var player = new Player('pinball1.mp3');
             player.play(function(err, player){
-                console.log('[app.js] play pinball1')
+                //console.log('[app.js] play pinball1')
             });
             player.play();
             if(tiltCountTouched>2)
             {
                 tiltCountTouched+=0;
                 tiltActivated = true;
-                console.log('>>>>>>>>>> tiltActivated');
+                //console.log('>>>>>>>>>> tiltActivated');
 
             }
             else
@@ -393,7 +435,7 @@ board.on('ready', function() {
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                    //console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -401,7 +443,7 @@ board.on('ready', function() {
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] horizontal right');
+                                //console.log('[app.js] horizontal right');
                                 earthquakeActivated = false;
                                 countTouched = 0;
                               }
@@ -412,7 +454,7 @@ board.on('ready', function() {
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                    //console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -420,7 +462,7 @@ board.on('ready', function() {
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] horizontal left');
+                                //console.log('[app.js] horizontal left');
                                 earthquakeActivated = false;
                                 countTouched = 0;
                               }
@@ -433,7 +475,7 @@ board.on('ready', function() {
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                    //console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -441,7 +483,7 @@ board.on('ready', function() {
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] vertical up');
+                                //console.log('[app.js] vertical up');
                                 earthquakeActivated = false;
                                 countTouched = 0;
                               }
@@ -452,7 +494,7 @@ board.on('ready', function() {
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                    //console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -460,7 +502,7 @@ board.on('ready', function() {
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] vertical down');
+                                //console.log('[app.js] vertical down');
                                 earthquakeActivated = false;
 
                                 countTouched = 0;
@@ -497,7 +539,7 @@ if(godFrame)
 
                  if (gesture.type == "swipe") {
                       //Classify swipe as either horizontal or vertical
-                        console.log('tiltActivated >>>>>> swipe');
+                        //console.log('tiltActivated >>>>>> swipe');
                       var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
                       //Classify as right-left or up-down
 
@@ -509,7 +551,7 @@ if(godFrame)
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                   // console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -517,7 +559,7 @@ if(godFrame)
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] horizontal right');
+                                //console.log('[app.js] horizontal right');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
                               }
@@ -528,7 +570,7 @@ if(godFrame)
                                 var player = new Player('pinball2.mp3');
 
                                 player.play(function(err, player){
-                                    console.log('[app.js] play pinball2')
+                                    //console.log('[app.js] play pinball2')
                                 });
                                 player.play();
                                 led8.on();
@@ -536,7 +578,7 @@ if(godFrame)
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                console.log('[app.js] horizontal left');
+                                //console.log('[app.js] horizontal left');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
                               }
@@ -547,7 +589,7 @@ if(godFrame)
                          var player = new Player('pinball2.mp3');
 
                         player.play(function(err, player){
-                            console.log('[app.js] play pinball2')
+                            //console.log('[app.js] play pinball2')
                         });
                         player.play();
                         led8.on();
@@ -555,7 +597,7 @@ if(godFrame)
                             clearInterval(gestureInterval);
                             led8.off();
                         }, 2000);
-                        console.log('[app.js] horizontal right');
+                        //console.log('[app.js] horizontal right');
                         tiltActivated = false;
                         tiltCountTouched = 0;
                     }

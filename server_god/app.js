@@ -1,6 +1,6 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var ip = "172.30.27.176";
+var ip = "192.168.25.115";
 
 var express = require('express');
 var app = express();
@@ -14,12 +14,18 @@ var ws = new webSocket('ws://127.0.0.1:6437');
 var Leap = require('leapjs');
 var controller = new Leap.Controller({enableGestures: true});
 
+            var isHorizontalSwipe = false;
+            var isVerticalSwipe = false;
+
 app.use(express.static(__dirname + '/public'));
 app.get('localhost:'+currentServerPort, function(req, res){
     ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
     console.log('[app.js] server god. requested root');
     res.sendfile(__dirname + '/public/index.html');
 });
+
+var score1 = 0;
+var score2 = 0;
 
 //client connection
 var clientio = require('socket.io-client');
@@ -30,7 +36,8 @@ client.on('connect', function(){
     console.log('[app.js] server god connected to opponent server');
 
     ws.on('message', function(data, flags){
-        console.log('[app.js] server god. received leap data. Sending data to other server: '+Math.round(Math.random()*100)/100);
+        //console.log('[app.js] server god. received leap data. Sending data to other server: '+Math.round(Math.random()*100)/100);
+       // console.log('[app.js] server god. received leap data. Sending data to other server: '+data);
         //send data to other server
         client.emit('LEAP_DATA', data);
     });
@@ -42,17 +49,21 @@ client.on('connect', function(){
     Leap.loop({enableGestures: true},
         function(godFrame)
         {
-            var isHorizontalSwipe = false;
-            var isVerticalSwipe = false;
-            var gestures = frame.godFrame,
+
+            var gestures = godFrame.gestures,
                 circle,
                 pointable,
                 direction,
                 normal;
 
+                //console.log('isHorizontalSwipe '+isHorizontalSwipe);
+                //console.log('isVerticalSwipe '+isVerticalSwipe);
+                console.log(gestures);
             if(gestures.length > 0) {
                 for (var i = 0; i < godFrame.gestures.length; i++) {
                     var gesture = godFrame.gestures[i];
+
+                    console.log('>>>>>>>> gesture length > 0 '+gesture.type);
 
                     if (gesture.type == "swipe") {
                         var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
@@ -82,7 +93,7 @@ client.on('connect', function(){
                 }
             }
 
-            var arrSwipes;
+            /*var arrSwipes;
             if(isVerticalSwipe && isHorizontalSwipe){
                 arrSwipes = {"swipeDirections":[1,1]};
             }else if(isVerticalSwipe && !isHorizontalSwipe){
@@ -92,12 +103,24 @@ client.on('connect', function(){
             }else{
                 arrSwipes = {"swipeDirections":[0,0]};
             }
-            client.emit('LEAP_SWIPE_DIRECTIONS', arrSwipes);
+            client.emit('LEAP_SWIPE_DIRECTIONS', arrSwipes);*/
+            console.log('isHorizontalSwipe '+isHorizontalSwipe);
+            if(isHorizontalSwipe || isVerticalSwipe)
+            {
+                console.log('>>>>>>>> true');
+                client.emit('LEAP_SWIPE_DIRECTIONS', 'true');
+                isHorizontalSwipe = false;
+                isVerticalSwipe = false;
+            }
         });
 
     //receive data from opponent server
     client.on('GOD_DATA', function(data){
         console.log('[app.js] server god. received score data '+data);
+        console.log('[app.js] server god. received score data '+data[0]);
+        console.log('[app.js] server god. received score data '+data[1]);
+        score1 = data[0];
+        score2 = data[1];
     });
 });
 
