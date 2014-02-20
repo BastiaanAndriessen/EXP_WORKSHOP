@@ -350,13 +350,11 @@ board.on('ready', function() {
                 countTouched+=0;
                 if(earthquakeActivated == false)
                 {
-                    earthquakeActivated = true;
                     abilities1 += 1;
 
                 }
-                
+                earthquakeActivated = true;
                 updateScores();
-
             }
             else
             {
@@ -419,11 +417,6 @@ board.on('ready', function() {
                     abilities2 += 1;
                 }
                 tiltActivated = true;
-
-                } 
-                
-                //tiltActivated = true;
-                
                 updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
