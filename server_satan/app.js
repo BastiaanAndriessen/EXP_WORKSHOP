@@ -307,7 +307,7 @@ board.on('ready', function() {
         rot+=359;
     }, 800);
 
-    var contFan = new five.Servo(10);
+    var contFan = new five.Servo(11);
     var contRot = 0;
     var contFanInterval = setInterval(function(){
         if(contRot>360)
