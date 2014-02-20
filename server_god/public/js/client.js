@@ -1,6 +1,9 @@
 $(document).ready(init);
 
-var interval;
+var socket;
+var opponentIp = 0;
+var interval, interval2;
+var connectedToServer = false;
 
 var score1 = 0;
 var currentScore1 = 0;
@@ -13,24 +16,73 @@ var abilities2 = 0;
 function init()
 {
     console.log('[client.js] god client init');
-    var socket = io.connect(':1337');
+    socket = io.connect(':1337');
 
-    socket.on('update', function(data){
+    /*socket.on('disconnect', function(){
+        console.log('[client.js] disconnected to opponent server');
+        connectedToServer = false;
+        $('#server_status').removeClass('green').removeClass('red').addClass('red').text('connection status: disconnected');
+    });*/
+
+    socket.on('DISCONNECT', function(data){
+        console.log('[client.js] disconnected to opponent server');
+        connectedToServer = false;
+        $('#server_status').removeClass('green').removeClass('red').addClass('red').text('connection status: disconnected');
+    });
+
+    socket.on('OPPONENT_IP', function(data){
+        console.log('[client.js] set opponent ip');
+        opponentIp = data;
+        $("#ip").text(opponentIp);
+        $("#input_id").val(opponentIp);
+    });
+
+    socket.on('UPDATE', function(data){
+        if(!connectedToServer){
+            connectedToServer = true;
+            $('#server_status').removeClass('red').removeClass('green').addClass('green').text('connection status: connected');
+        }
+
         if(score1 < data['score1']){
             score1 = parseFloat(data['score1']);
-            console.log('[client.js] score 1: '+score1);
             setScoreInterval($('#score_satan_num'), currentScore1, score1, interval);
         }
-        score2 = data['score2'];
         //$('#score_satan_num').text(score1);
-        $('#score_god_num').text(score2);
+        //$('#score_god_num').text(score2);
+
+        if(score2 < data['score2']){
+            score2 = parseFloat(data['score2']);
+            setScoreInterval($('#score_god_num'), currentScore2, score2, interval2);
+        }
 
         abilities1 = data['abilities1'];
         abilities2 = data['abilities2'];
         updateAbilities();
     });
 
+    $("#ip").on('click', switchToForm);
+    $(window).on('keyup', function(e){
+        if(e.keyCode == 13){
+            e.preventDefault();
+            updateIp();
+        }
+    })
+}
 
+function switchToForm(e){
+    $('#opponent_ip form').removeClass();
+    $(this).addClass('no_display');
+    $('#input_id').focus().on('focusout',function(e){
+        updateIp();
+    });
+}
+
+function updateIp(){
+    if($('#ip').text() != $('#input_id').val()){
+        socket.emit('UPDATE_IP', $('#input_id').val());
+    }
+    $('#input_id').parent().addClass('no_display');
+    $('#ip').removeClass().text($('#input_id').val());
 }
 
 function updateAbilities(){
@@ -41,12 +93,18 @@ function updateAbilities(){
             $('#score_satan .ability_1').removeClass('default_inactive').addClass('default_active');
             break;
         case 2:
+            $('#score_satan .ability_1').removeClass('default_inactive').addClass('default_active');
             $('#score_satan .ability_2').removeClass('default_inactive').addClass('default_active');
             break;
         case 3:
+            $('#score_satan .ability_1').removeClass('default_inactive').addClass('default_active');
+            $('#score_satan .ability_2').removeClass('default_inactive').addClass('default_active');
             $('#score_satan .ability_3').removeClass('default_inactive').addClass('default_active');
             break;
         case 4:
+            $('#score_satan .ability_1').removeClass('default_inactive').addClass('default_active');
+            $('#score_satan .ability_2').removeClass('default_inactive').addClass('default_active');
+            $('#score_satan .ability_3').removeClass('default_inactive').addClass('default_active');
             $('#score_satan .ability_4').removeClass('gold_inactive').addClass('gold_active');
             break;
     }
@@ -56,12 +114,18 @@ function updateAbilities(){
             $('#score_god .ability_1').removeClass('default_inactive').addClass('default_active');
             break;
         case 2:
+            $('#score_god .ability_1').removeClass('default_inactive').addClass('default_active');
             $('#score_god .ability_2').removeClass('default_inactive').addClass('default_active');
             break;
         case 3:
+            $('#score_god .ability_1').removeClass('default_inactive').addClass('default_active');
+            $('#score_god .ability_2').removeClass('default_inactive').addClass('default_active');
             $('#score_god .ability_3').removeClass('default_inactive').addClass('default_active');
             break;
         case 4:
+            $('#score_god .ability_1').removeClass('default_inactive').addClass('default_active');
+            $('#score_god .ability_2').removeClass('default_inactive').addClass('default_active');
+            $('#score_god .ability_3').removeClass('default_inactive').addClass('default_active');
             $('#score_god .ability_4').removeClass('gold_inactive').addClass('gold_active');
             break;
     }
@@ -100,5 +164,5 @@ function setScoreInterval(el, currentScore, score, interval){
             }
             el.text(currentScore);
         }
-    }, 100);
+    }, 50);
 }

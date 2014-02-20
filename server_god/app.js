@@ -1,6 +1,7 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
 var ip = "172.30.27.187";
+var latestGodData = 0;
 
 var express = require('express');
 var app = express();
@@ -14,8 +15,8 @@ var ws = new webSocket('ws://127.0.0.1:6437');
 var Leap = require('leapjs');
 var controller = new Leap.Controller({enableGestures: true});
 
-            var isHorizontalSwipe = false;
-            var isVerticalSwipe = false;
+var isHorizontalSwipe = false;
+var isVerticalSwipe = false;
 
 app.use(express.static(__dirname + '/public'));
 app.get('localhost:'+currentServerPort, function(req, res){
@@ -27,11 +28,24 @@ var score2 = 0;
 
 //client connection
 var clientio = require('socket.io-client');
-console.log('[app.js] server god: satan server http://'+ip+':'+opponentServerPort);
 var client = clientio.connect('http://'+ip+':'+opponentServerPort);
 
-client.on('connect', function(){
+client.on('connect', connectedToOpponentServer);
+
+function connectedToOpponentServer(){
     console.log('[app.js] server god connected to opponent server');
+
+    io.sockets.on('connection', function(socket)
+    {
+        if(latestGodData != 0){
+            io.sockets.emit('UPDATE', latestGodData);
+        }
+
+        client.on('disconnect', function(){
+            console.log('[app.js] god server disconnected to opponent server');
+            io.sockets.emit('DISCONNECT', 'disconnect');
+        });
+    });
 
     ws.on('message', function(data, flags){
         //send data to other server
@@ -40,8 +54,8 @@ client.on('connect', function(){
     });
 
     /*setInterval(function(e){
-        client.emit('LEAP_DATA', { my: 'data from interval: '+Math.round(Math.random()*100)/100 });
-    }, 3000);*/
+     client.emit('LEAP_DATA', { my: 'data from interval: '+Math.round(Math.random()*100)/100 });
+     }, 3000);*/
 
     Leap.loop({enableGestures: true},
         function(godFrame)
@@ -97,7 +111,21 @@ client.on('connect', function(){
         console.log('[app.js] server god. received score data '+data);
         //$('#score_satan_num').text(data['score1']);
         //$('#score_god_num').text(data['score2']);
-        io.sockets.emit('update', data);
+        latestGodData = data;
+        io.sockets.emit('UPDATE', data);
+    });
+}
+
+io.sockets.on('connection', function(socket)
+{
+    console.log('[app.js] god server. client connected');
+    io.sockets.emit('OPPONENT_IP', ip);
+
+    socket.on('UPDATE_IP', function(data){
+        console.log('[app.js] god server. update ip to: '+data);
+        ip = data;
+        client = clientio.connect('http://'+ip+':'+opponentServerPort);
+        client.on('connect', connectedToOpponentServer);
     });
 });
 

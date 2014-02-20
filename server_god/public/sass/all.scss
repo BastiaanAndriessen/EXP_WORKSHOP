@@ -175,7 +175,52 @@ html{
           }
         }
       }
+
+      #opponent_ip{
+        clear: both;
+        width: 20%;
+        margin-top: 4em;
+        margin-bottom: 1em;
+
+        h4{
+          font-family: 'COUTURE';
+          font-size: 8pt;
+          text-align: center;
+          text-transform: uppercase;
+          color: white;
+          margin-bottom: .3em;
+        }
+
+        p{
+          font-family: 'COUTURE';
+          font-size: 8pt;
+          color: white;
+          text-align: center;
+        }
+
+        form{
+          width: 100px;
+          margin-left: auto;
+          margin-right: auto;
+
+          input{
+            text-align: center;
+          }
+        }
+      }
+
+      #server_status{
+        width: 40%;
+        height: 30px;
+        font-family: 'COUTURE';
+        font-size: 8pt;
+        text-align: center;
+      }
     }
+  }
+
+  .no_display{
+    display: none;
   }
 
   .center{
@@ -195,4 +240,7 @@ html{
     transition:text-shadow 0.5s ease-in-out;
     text-shadow:none;
   }
+
+  .red{color: red;}
+  .green{color: green;}
 }

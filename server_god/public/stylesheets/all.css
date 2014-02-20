@@ -170,78 +170,123 @@ html body #container #scoreboard #score_satan .abilities .default_active, html b
 html body #container #scoreboard #score_satan .abilities .default_active h3, html body #container #scoreboard #score_god .abilities .default_active h3 {
   opacity: 1;
 }
-/* line 111, ../sass/all.scss */
+/* line 110, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .gold_inactive, html body #container #scoreboard #score_god .abilities .gold_inactive {
   background-image: url("../assets/src/points/point_default_gold.png");
   color: transparent;
   text-shadow: 0 0 10px #f9dd4a;
 }
-/* line 116, ../sass/all.scss */
+/* line 115, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .gold_inactive h3, html body #container #scoreboard #score_god .abilities .gold_inactive h3 {
   opacity: 0.1;
 }
-/* line 121, ../sass/all.scss */
+/* line 120, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .gold_active, html body #container #scoreboard #score_god .abilities .gold_active {
   color: #f9dd4a;
   text-shadow: none;
   background-image: url("../assets/src/points/point_gold.png");
 }
-/* line 126, ../sass/all.scss */
+/* line 125, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .gold_active h3, html body #container #scoreboard #score_god .abilities .gold_active h3 {
   opacity: 1;
 }
-/* line 134, ../sass/all.scss */
+/* line 133, ../sass/all.scss */
 html body #container #scoreboard #score_satan h2 {
   margin-left: 6.3em;
 }
-/* line 137, ../sass/all.scss */
+/* line 136, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .ability {
   background-position: center right;
   padding-left: 2.6em;
 }
-/* line 143, ../sass/all.scss */
+/* line 142, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .default_inactive h3, html body #container #scoreboard #score_satan .abilities .default_active h3 {
   background-image: url("../assets/src/ability_l.png");
 }
-/* line 146, ../sass/all.scss */
+/* line 145, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .default_active {
   background-image: url("../assets/src/points/point_red.png");
 }
-/* line 151, ../sass/all.scss */
+/* line 150, ../sass/all.scss */
 html body #container #scoreboard #score_satan .abilities .gold_inactive h3, html body #container #scoreboard #score_satan .abilities .gold_active h3 {
   background-image: url("../assets/src/ability_l_gold.png");
 }
-/* line 157, ../sass/all.scss */
+/* line 156, ../sass/all.scss */
 html body #container #scoreboard #score_god h2 {
   margin-left: 4.6em;
 }
-/* line 160, ../sass/all.scss */
+/* line 159, ../sass/all.scss */
 html body #container #scoreboard #score_god .abilities .ability {
   background-position: center left;
   padding-left: 2.8em;
 }
-/* line 166, ../sass/all.scss */
+/* line 165, ../sass/all.scss */
 html body #container #scoreboard #score_god .abilities .default_inactive h3, html body #container #scoreboard #score_god .abilities .default_active h3 {
   background-image: url("../assets/src/ability_r.png");
 }
-/* line 169, ../sass/all.scss */
+/* line 168, ../sass/all.scss */
 html body #container #scoreboard #score_god .abilities .default_active {
   background-image: url("../assets/src/points/point_blue.png");
 }
-/* line 174, ../sass/all.scss */
+/* line 173, ../sass/all.scss */
 html body #container #scoreboard #score_god .abilities .gold_inactive h3, html body #container #scoreboard #score_god .abilities .gold_active h3 {
   background-image: url("../assets/src/ability_r_gold.png");
 }
-/* line 182, ../sass/all.scss */
+/* line 179, ../sass/all.scss */
+html body #container #opponent_ip {
+  clear: both;
+  width: 20%;
+  margin-top: 4em;
+  margin-bottom: 1em;
+}
+/* line 185, ../sass/all.scss */
+html body #container #opponent_ip h4 {
+  font-family: 'COUTURE';
+  font-size: 8pt;
+  text-align: center;
+  text-transform: uppercase;
+  color: white;
+  margin-bottom: .3em;
+}
+/* line 194, ../sass/all.scss */
+html body #container #opponent_ip p {
+  font-family: 'COUTURE';
+  font-size: 8pt;
+  color: white;
+  text-align: center;
+}
+/* line 201, ../sass/all.scss */
+html body #container #opponent_ip form {
+  width: 100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* line 206, ../sass/all.scss */
+html body #container #opponent_ip form input {
+  text-align: center;
+}
+/* line 212, ../sass/all.scss */
+html body #container #server_status {
+  width: 40%;
+  height: 30px;
+  font-family: 'COUTURE';
+  font-size: 8pt;
+  text-align: center;
+}
+/* line 222, ../sass/all.scss */
+html .no_display {
+  display: none;
+}
+/* line 226, ../sass/all.scss */
 html .center {
   margin-left: auto;
   margin-right: auto;
 }
-/* line 187, ../sass/all.scss */
+/* line 231, ../sass/all.scss */
 html .clear {
   clear: both;
 }
-/* line 191, ../sass/all.scss */
+/* line 235, ../sass/all.scss */
 html .no_text_shadow {
   -webkit-transition: text-shadow 0.5s ease-in-out;
   -moz-transition: text-shadow 0.5s ease-in-out;
@@ -249,4 +294,12 @@ html .no_text_shadow {
   -ms-transition: text-shadow 0.5s ease-in-out;
   transition: text-shadow 0.5s ease-in-out;
   text-shadow: none;
+}
+/* line 244, ../sass/all.scss */
+html .red {
+  color: red;
+}
+/* line 245, ../sass/all.scss */
+html .green {
+  color: green;
 }
