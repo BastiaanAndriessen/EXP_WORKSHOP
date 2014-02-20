@@ -28,6 +28,8 @@ var tiltActivated = false, tiltCountTouched = 0, playerTwoPoints = 0;
 var Player = require('player');
 
 var leapMotionDataReceived = 0;
+var abilities1 = 0;
+var abilities2 = 0;
 
 
 
@@ -235,11 +237,13 @@ board.on('ready', function() {
                 player.play();
                 points += 50;
                 console.log('[app.js] points are '+points);
+                abilities2 += 1;
                 oldValue = this.value;
                 updateScores();
             }
             var interval2 = setInterval(function(){
-
+                abilities2 -= 1;
+                updateScores();
                 clearInterval(interval2);
                 led8.off();
             }, 2000);
@@ -272,6 +276,7 @@ board.on('ready', function() {
                 player.play();
                 points += 50;
                 console.log('[app.js] points are '+points);
+                abilities1 += 1;
                 oldValuePush = this.value;
                 updateScores();
                 if(rot>360)
@@ -282,7 +287,8 @@ board.on('ready', function() {
                 rot+=20;
             }
             var intervalPush2 = setInterval(function(){
-
+                abilities1 -= 1;
+                updateScores();
                 clearInterval(intervalPush2);
                 led8.off();
             }, 2000);
@@ -334,6 +340,7 @@ board.on('ready', function() {
             {
                 countTouched+=0;
                 earthquakeActivated = true;
+                abilities1 += 1;
                 updateScores();
             }
             else
@@ -393,6 +400,7 @@ board.on('ready', function() {
             {
                 tiltCountTouched+=0;
                 tiltActivated = true;
+                abilities2 += 1;
                 updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
@@ -446,6 +454,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] horizontal right');
                                 earthquakeActivated = false;
+                                abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores();
                               }
@@ -466,6 +475,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] horizontal left');
                                 earthquakeActivated = false;
+                                abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores();
                               }
@@ -489,6 +499,7 @@ board.on('ready', function() {
                                 //console.log('[app.js] vertical up');
                                 earthquakeActivated = false;
                                 countTouched = 0;
+                                abilities1 -= 1;
 
                                 updateScores();
                               }
@@ -509,6 +520,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] vertical down');
                                 earthquakeActivated = false;
+                                abilities1 -= 1;
 
                                 countTouched = 0;
                                 updateScores();
@@ -569,6 +581,8 @@ if(godFrame)
                                 //console.log('[app.js] horizontal right');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
+                                abilities2 -= 1;
+                                updateScores();
                               }
                           } else {
                               swipeDirection = "left";
@@ -588,6 +602,8 @@ if(godFrame)
                                 //console.log('[app.js] horizontal left');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
+                                abilities2 -= 1;
+                                updateScores();
                               }
                           } 
                       }
@@ -607,6 +623,8 @@ if(godFrame)
                         //console.log('[app.js] horizontal right');
                         tiltActivated = false;
                         tiltCountTouched = 0;
+                        abilities2 -= 1;
+                        updateScores();
                     }
                       }
                   }
@@ -620,9 +638,10 @@ if(godFrame)
 //updateScore
 function updateScores()
 {
+
     console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // ');
     socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated});
-    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated}));
+    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
 }
 
 
