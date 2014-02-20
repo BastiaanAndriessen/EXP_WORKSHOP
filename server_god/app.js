@@ -38,6 +38,7 @@ client.on('connect', function(){
 
     ws.on('message', function(data, flags){
         //send data to other server
+        console.log('[app.js] data');
         client.emit('LEAP_DATA', data);
     });
 

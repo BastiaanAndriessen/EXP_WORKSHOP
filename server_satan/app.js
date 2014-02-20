@@ -134,6 +134,7 @@ board.on('ready', function() {
 
                     tiltActivated = false;
                     tiltCountTouched = 0;
+                    updateScores();
                 }
             }
             /*console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[0]);
@@ -147,12 +148,8 @@ board.on('ready', function() {
                 }
             }*/
         });
+});
 
-        setInterval(function(e){
-            //console.log('satan server. send score data to opponent server');
-            socket.emit('GOD_DATA', {score1:points ,score2: playerTwoPoints, tilt: tiltActivated, earthquake:earthquakeActivated});
-        }, 3000);
-    });
 
     led8 = new five.Led(8);
     led12 = new five.Led(12);
@@ -239,6 +236,7 @@ board.on('ready', function() {
                 points += 50;
                 console.log('[app.js] points are '+points);
                 oldValue = this.value;
+                updateScores();
             }
             var interval2 = setInterval(function(){
 
@@ -256,7 +254,7 @@ board.on('ready', function() {
     var intervalPush = 0;
     var oldValuePush = 100;
     sensorPush.scale([0, 100]).on("read", function() {
-        console.log('[app.js] SensorPush value is '+this.value);
+        //console.log('[app.js] SensorPush value is '+this.value);
         if(intervalPush==0){
             intervalPush = setInterval(function(e){
                 //console.log('[app.js] light sensor value: '+self.value);
@@ -275,7 +273,7 @@ board.on('ready', function() {
                 points += 50;
                 console.log('[app.js] points are '+points);
                 oldValuePush = this.value;
-
+                updateScores();
                 if(rot>360)
                 {
                     rot=0;
@@ -331,12 +329,12 @@ board.on('ready', function() {
             });
             player.play();
             points += 100;
+            updateScores();
             if(countTouched>2)
             {
                 countTouched+=0;
                 earthquakeActivated = true;
-
-
+                updateScores();
             }
             else
             {
@@ -385,6 +383,7 @@ board.on('ready', function() {
         if(value == 1)
         {
             playerTwoPoints += 100;
+            updateScores();
             var player = new Player('pinball1.mp3');
             player.play(function(err, player){
                 //console.log('[app.js] play pinball1')
@@ -394,6 +393,7 @@ board.on('ready', function() {
             {
                 tiltCountTouched+=0;
                 tiltActivated = true;
+                updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
             }
@@ -447,6 +447,7 @@ board.on('ready', function() {
                                 //console.log('[app.js] horizontal right');
                                 earthquakeActivated = false;
                                 countTouched = 0;
+                                updateScores();
                               }
                           } else {
                               swipeDirection = "left";
@@ -466,6 +467,7 @@ board.on('ready', function() {
                                 //console.log('[app.js] horizontal left');
                                 earthquakeActivated = false;
                                 countTouched = 0;
+                                updateScores();
                               }
                           }
                       } else { //vertical
@@ -487,6 +489,8 @@ board.on('ready', function() {
                                 //console.log('[app.js] vertical up');
                                 earthquakeActivated = false;
                                 countTouched = 0;
+
+                                updateScores();
                               }
                           } else {
                               swipeDirection = "down";
@@ -507,6 +511,8 @@ board.on('ready', function() {
                                 earthquakeActivated = false;
 
                                 countTouched = 0;
+                                updateScores();
+
                               }
                           }
                       }
@@ -609,6 +615,14 @@ if(godFrame)
       });
 
 
+}
+
+//updateScore
+function updateScores()
+{
+    console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // ');
+    socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated});
+    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated}));
 }
 
 
