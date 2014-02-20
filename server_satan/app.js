@@ -32,6 +32,9 @@ var abilities1 = 0;
 var abilities2 = 0;
 var isTiltActive = false;
 
+var isCooldownTilt = false;
+var isCooldownEarthquake = false;
+
 
 
 
@@ -350,8 +353,12 @@ board.on('ready', function() {
                     abilities1 += 1;
 
                 }
-                earthquakeActivated = true;
+                if(isCooldownEarthquake == false)
+                {
+                    earthquakeActivated = true;
+                } 
                 updateScores();
+
             }
             else
             {
@@ -413,7 +420,11 @@ board.on('ready', function() {
                 {
                     abilities2 += 1;
                 }
-                tiltActivated = true;
+                //tiltActivated = true;
+                if(isCooldownTilt == false)
+                {
+                    tiltActivated = true;
+                } 
                 updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
@@ -472,6 +483,12 @@ board.on('ready', function() {
                                 abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores();
+
+                                isCooldownEarthquake = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownEarthquake = false;
+                                }, 10000);
                               }
                           } else {
                               swipeDirection = "left";
@@ -493,6 +510,12 @@ board.on('ready', function() {
                                 abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores();
+
+                                isCooldownEarthquake = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownEarthquake = false;
+                                }, 10000);
                               }
                           }
                       } else { //vertical
@@ -517,6 +540,12 @@ board.on('ready', function() {
                                 abilities1 -= 1;
 
                                 updateScores();
+
+                                isCooldownEarthquake = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownEarthquake = false;
+                                }, 10000);
                               }
                           } else {
                               swipeDirection = "down";
@@ -539,6 +568,12 @@ board.on('ready', function() {
 
                                 countTouched = 0;
                                 updateScores();
+
+                                isCooldownEarthquake = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownEarthquake = false;
+                                }, 10000);
 
                               }
                           }
@@ -602,6 +637,12 @@ if(godFrame)
                                 tiltCountTouched = 0;
                                 abilities2 -= 1;
                                 updateScores();
+
+                                isCooldownTilt = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownTilt = false;
+                                }, 10000);
                               }
                           } else {
                               swipeDirection = "left";
@@ -623,6 +664,12 @@ if(godFrame)
                                 tiltCountTouched = 0;
                                 abilities2 -= 1;
                                 updateScores();
+
+                                isCooldownTilt = true;
+                                var cooldownInterval = setInterval(function(){
+                                    clearInterval(cooldownInterval);
+                                    isCooldownTilt = false;
+                                }, 10000);
                               }
                           } 
                       }
@@ -644,6 +691,12 @@ if(godFrame)
                         tiltCountTouched = 0;
                         abilities2 -= 1;
                         updateScores();
+
+                        isCooldownTilt = true;
+                        var cooldownInterval = setInterval(function(){
+                            clearInterval(cooldownInterval);
+                            isCooldownTilt = false;
+                        }, 10000);
                     }
                       }
                   }
