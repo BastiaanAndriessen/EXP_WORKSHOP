@@ -30,6 +30,7 @@ var Player = require('player');
 var leapMotionDataReceived = 0;
 var abilities1 = 0;
 var abilities2 = 0;
+var isTiltActive = false;
 
 
 
@@ -62,83 +63,84 @@ board.on('ready', function() {
             //console.log('[app.js] server_satan, data leap is '+data);
             //console.log('[app.js] server_satan, data leap hands is '+data.hands);
 
-            godFrame = JSON.parse(data);
-            var godRightHandId = 0;
-            var godLeftHandId = 0;
+                godFrame = JSON.parse(data);
+                var godRightHandId = 0;
+                var godLeftHandId = 0;
 
-            //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
+                //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
 
-            if(godFrame.hands.length>0){
-                if(godFrame.hands.length < 2){
-                    godRightHandId = godFrame.hands[0].id;
-                    //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                    //console.log('[app.js] direction'+frame.hands[0].direction[0]);
-
-                }else{
-                    if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
+                if(godFrame.hands.length>0){
+                    if(godFrame.hands.length < 2){
                         godRightHandId = godFrame.hands[0].id;
-                        godLeftHandId = godFrame.hands[1].id;
+                        //direction 0 kleiner dan 0 = links, groter da 0 = rechts
+                        //console.log('[app.js] direction'+frame.hands[0].direction[0]);
+
                     }else{
-                        godRightHandId = godFrame.hands[1].id;
-                        godLeftHandId = godFrame.hands[0].id;
+                        if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
+                            godRightHandId = godFrame.hands[0].id;
+                            godLeftHandId = godFrame.hands[1].id;
+                        }else{
+                            godRightHandId = godFrame.hands[1].id;
+                            godLeftHandId = godFrame.hands[0].id;
+                        }
                     }
                 }
-            }
 
-            if(godLeftHandId!=0 && !godLeftEnabled){
-                led6.on();
-                godLeftEnabled = true;
-                var player = new Player('pinball3.mp3');
+                if(godLeftHandId!=0 && !godLeftEnabled){
+                    led6.on();
+                    godLeftEnabled = true;
+                    var player = new Player('pinball3.mp3');
 
-                player.play(function(err, player){
-                    console.log('[app.js] play pinball3')
-                });
-                player.play();
-            }else if(godLeftHandId == 0){
-                led6.off();
-                godLeftEnabled = false;
-            }
-
-            if(godRightHandId!=0 && !godRightEnabled){
-                led7.on();
-                godRightEnabled = true;
-                console.log('[app.js] rot: '+rot);
-                var player = new Player('pinball3.mp3');
-
-                player.play(function(err, player){
-                    //console.log('[app.js] play pinball3')
-                });
-                player.play();
-            }else if(godRightHandId == 0){
-                led7.off();
-                godRightEnabled = false;
-            }
-        });
-
-        socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
-            console.log('[app.js] satan server. received swipe directions: '+data);
-            if(data == 'true')
-            {
-                console.log('[app.js] satan server. >>>>> TRUE');
-                if(tiltActivated)
-                {
-                    var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                    //console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-
-                    tiltActivated = false;
-                    tiltCountTouched = 0;
-                    updateScores();
+                    player.play(function(err, player){
+                        console.log('[app.js] play pinball3')
+                    });
+                    player.play();
+                }else if(godLeftHandId == 0){
+                    led6.off();
+                    godLeftEnabled = false;
                 }
-            }
+
+                if(godRightHandId!=0 && !godRightEnabled){
+                    led7.on();
+                    godRightEnabled = true;
+                    console.log('[app.js] rot: '+rot);
+                    var player = new Player('pinball3.mp3');
+
+                    player.play(function(err, player){
+                        //console.log('[app.js] play pinball3')
+                    });
+                    player.play();
+                }else if(godRightHandId == 0){
+                    led7.off();
+                    godRightEnabled = false;
+                }
+        });
+    
+        socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
+                console.log('[app.js] satan server. received swipe directions: '+data);
+                if(data == 'true')
+                {
+                    console.log('[app.js] satan server. >>>>> TRUE');
+                    if(tiltActivated)
+                    {
+                        var player = new Player('pinball2.mp3');
+
+                                    player.play(function(err, player){
+                                        //console.log('[app.js] play pinball2')
+                                    });
+                                    player.play();
+                                    led8.on();
+                                    var gestureInterval = setInterval(function(){
+                                        clearInterval(gestureInterval);
+                                        led8.off();
+                                    }, 2000);
+
+                        tiltActivated = false;
+                        tiltCountTouched = 0;
+                        updateScores();
+                    }
+                }
+            
             /*console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[0]);
             console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[1]);
             if(tiltActivated)
@@ -163,54 +165,57 @@ board.on('ready', function() {
 
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
-
-        var rightHandId = 0;
-        var leftHandId = 0;
-        if(frame.hands.length>0){
-            if(frame.hands.length < 2){
-                rightHandId = frame.hands[0].id;
-                //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                //console.log('[app.js] direction'+frame.hands[0].direction[0]);
-
-            }else{
-                if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
+        if(!isTiltActive)
+        {
+            var rightHandId = 0;
+            var leftHandId = 0;
+            if(frame.hands.length>0){
+                if(frame.hands.length < 2){
                     rightHandId = frame.hands[0].id;
-                    leftHandId = frame.hands[1].id;
+                    //direction 0 kleiner dan 0 = links, groter da 0 = rechts
+                    //console.log('[app.js] direction'+frame.hands[0].direction[0]);
+
                 }else{
-                    rightHandId = frame.hands[1].id;
-                    leftHandId = frame.hands[0].id;
+                    if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
+                        rightHandId = frame.hands[0].id;
+                        leftHandId = frame.hands[1].id;
+                    }else{
+                        rightHandId = frame.hands[1].id;
+                        leftHandId = frame.hands[0].id;
+                    }
                 }
             }
+
+            if(leftHandId!=0 && !leftEnabled){
+                led12.on();
+                leftEnabled = true;
+                var player = new Player('pinball3.mp3');
+
+                player.play(function(err, player){
+                    //console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(leftHandId == 0){
+                led12.off();
+                leftEnabled = false;
+            }
+
+            if(rightHandId!=0 && !rightEnabled){
+                led13.on();
+                rightEnabled = true;
+                //console.log('[app.js] rot: '+rot);
+                var player = new Player('pinball3.mp3');
+
+                player.play(function(err, player){
+                    //console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(rightHandId == 0){
+                led13.off();
+                rightEnabled = false;
+            }
         }
-
-        if(leftHandId!=0 && !leftEnabled){
-            led12.on();
-            leftEnabled = true;
-            var player = new Player('pinball3.mp3');
-
-            player.play(function(err, player){
-                //console.log('[app.js] play pinball3')
-            });
-            player.play();
-        }else if(leftHandId == 0){
-            led12.off();
-            leftEnabled = false;
-        }
-
-        if(rightHandId!=0 && !rightEnabled){
-            led13.on();
-            rightEnabled = true;
-            //console.log('[app.js] rot: '+rot);
-            var player = new Player('pinball3.mp3');
-
-            player.play(function(err, player){
-                //console.log('[app.js] play pinball3')
-            });
-            player.play();
-        }else if(rightHandId == 0){
-            led13.off();
-            rightEnabled = false;
-        }
+        
     });
 
 
@@ -427,7 +432,9 @@ board.on('ready', function() {
             //console.log('[app.js] >>>> gestures');
 
 
-            if(gestures.length > 0) {
+            if(!isTiltActive)
+            {
+                if(gestures.length > 0) {
 
             for (var i = 0; i < frame.gestures.length; i++) {
                   var gesture = frame.gestures[i];
@@ -530,6 +537,8 @@ board.on('ready', function() {
                       }
                    }
                  }
+            }
+            
         }
     })
 });
@@ -574,10 +583,12 @@ if(godFrame)
                                 });
                                 player.play();
                                 led8.on();
+                                isTiltActive = true;
                                 var gestureInterval = setInterval(function(){
                                     clearInterval(gestureInterval);
                                     led8.off();
-                                }, 2000);
+                                    isTiltActive = false;
+                                }, 6000);
                                 //console.log('[app.js] horizontal right');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
