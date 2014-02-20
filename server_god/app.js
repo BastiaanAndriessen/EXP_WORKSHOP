@@ -36,8 +36,6 @@ client.on('connect', function(){
     console.log('[app.js] server god connected to opponent server');
 
     ws.on('message', function(data, flags){
-        //console.log('[app.js] server god. received leap data. Sending data to other server: '+Math.round(Math.random()*100)/100);
-       // console.log('[app.js] server god. received leap data. Sending data to other server: '+data);
         //send data to other server
         client.emit('LEAP_DATA', data);
     });
@@ -56,9 +54,7 @@ client.on('connect', function(){
                 direction,
                 normal;
 
-                //console.log('isHorizontalSwipe '+isHorizontalSwipe);
-                //console.log('isVerticalSwipe '+isVerticalSwipe);
-                console.log(gestures);
+            console.log(gestures);
             if(gestures.length > 0) {
                 for (var i = 0; i < godFrame.gestures.length; i++) {
                     var gesture = godFrame.gestures[i];
@@ -74,18 +70,14 @@ client.on('connect', function(){
                                 var gestureInterval = setInterval(function(){
                                     clearInterval(gestureInterval);
                                 }, 2000);
-                                //console.log('[app.js] horizontal right');
                                 isHorizontalSwipe = true;
                             } else {
-                                //console.log('[app.js] horizontal left');
                                 isHorizontalSwipe = true;
                             }
                         }else{
                             if(gesture.direction[1] > 0){
-                                //console.log('[app.js] vertical up');
                                 isVerticalSwipe = true;
                             }else{
-                                //console.log('[app.js] vertical down');
                                 isVerticalSwipe = true;
                             }
                         }
@@ -93,17 +85,6 @@ client.on('connect', function(){
                 }
             }
 
-            /*var arrSwipes;
-            if(isVerticalSwipe && isHorizontalSwipe){
-                arrSwipes = {"swipeDirections":[1,1]};
-            }else if(isVerticalSwipe && !isHorizontalSwipe){
-                arrSwipes = {"swipeDirections":[1,0]};
-            }else if(!isVerticalSwipe && isHorizontalSwipe){
-                arrSwipes = {"swipeDirections":[0,1]};
-            }else{
-                arrSwipes = {"swipeDirections":[0,0]};
-            }
-            client.emit('LEAP_SWIPE_DIRECTIONS', arrSwipes);*/
             console.log('isHorizontalSwipe '+isHorizontalSwipe);
             if(isHorizontalSwipe || isVerticalSwipe)
             {
