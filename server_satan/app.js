@@ -257,12 +257,12 @@ board.on('ready', function() {
                     points += 35;
                 }
                 console.log('[app.js] points are '+points);
-                abilities2 += 1;
+                //abilities2 += 1;
                 oldValue = this.value;
                 updateScores(socket);
             }
             var interval2 = setInterval(function(){
-                abilities2 -= 1;
+                //abilities2 -= 1;
                 updateScores(socket);
                 clearInterval(interval2);
                 led8.off();
@@ -296,14 +296,14 @@ board.on('ready', function() {
                 player.play();
                 if(vulcanoActivated)
                 {
-                    points += 275;
+                    playerTwoPoints += 275;
                 }
                 else
                 {
-                    points += 35;
+                    playerTwoPoints += 35;
                 }
-                console.log('[app.js] points are '+points);
-                abilities1 += 1;
+                console.log('[app.js] points are '+playerTwoPoints);
+                //abilities1 += 1;
                 oldValuePush = this.value;
                 updateScores(socket);
                 if(rot>360)
@@ -314,7 +314,7 @@ board.on('ready', function() {
                 rot+=20;
             }
             var intervalPush2 = setInterval(function(){
-                abilities1 -= 1;
+                //abilities1 -= 1;
                 updateScores(socket);
                 clearInterval(intervalPush2);
                 led8.off();
@@ -364,7 +364,7 @@ board.on('ready', function() {
             if(countTouched<4)
             {
                 abilities1 += 1;
-                countTouched += 1:
+                countTouched += 1;
                 if(countTouched == 1)
                 {
                     earthquakeActivated = true;
@@ -497,7 +497,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] horizontal right');
                                 earthquakeActivated = false;
-                                abilities1 -= 1;
+                                //abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores(socket);
 
@@ -525,7 +525,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] horizontal left');
                                 earthquakeActivated = false;
-                                abilities1 -= 1;
+                                //abilities1 -= 1;
                                 countTouched = 0;
                                 updateScores(socket);
 
@@ -556,7 +556,7 @@ board.on('ready', function() {
                                 //console.log('[app.js] vertical up');
                                 earthquakeActivated = false;
                                 countTouched = 0;
-                                abilities1 -= 1;
+                                //abilities1 -= 1;
 
                                 updateScores(socket);
 
@@ -584,7 +584,7 @@ board.on('ready', function() {
                                 }, 2000);
                                 //console.log('[app.js] vertical down');
                                 earthquakeActivated = false;
-                                abilities1 -= 1;
+                               // abilities1 -= 1;
 
                                 countTouched = 0;
                                 updateScores(socket);
@@ -656,7 +656,7 @@ if(godFrame)
                                 //console.log('[app.js] horizontal right');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
-                                abilities2 -= 1;
+                                //abilities2 -= 1;
                                 updateScores(socket);
 
                                 isCooldownTilt = true;
@@ -683,7 +683,7 @@ if(godFrame)
                                 //console.log('[app.js] horizontal left');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
-                                abilities2 -= 1;
+                                //abilities2 -= 1;
                                 updateScores(socket);
 
                                 isCooldownTilt = true;
@@ -710,7 +710,7 @@ if(godFrame)
                         //console.log('[app.js] horizontal right');
                         tiltActivated = false;
                         tiltCountTouched = 0;
-                        abilities2 -= 1;
+                        //abilities2 -= 1;
                         updateScores(socket);
 
                         isCooldownTilt = true;
