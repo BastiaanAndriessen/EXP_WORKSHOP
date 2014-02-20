@@ -225,10 +225,10 @@ board.on('ready', function() {
                 //console.log('[app.js] light sensor value: '+self.value);
             },500);
         }
-        if(this.value < 15){
+        if(this.value < 30){
             led8.on();
             //console.log('[app.js] this.value is '+this.value);
-            if(oldValue>15)
+            if(oldValue>30)
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
@@ -245,7 +245,7 @@ board.on('ready', function() {
                 led8.off();
             }, 2000);
         }
-        if(this.value>=15)
+        if(this.value>=30)
         {
             oldValue = this.value;
         }
@@ -255,16 +255,16 @@ board.on('ready', function() {
     var intervalPush = 0;
     var oldValuePush = 100;
     sensorPush.scale([0, 100]).on("read", function() {
-        //console.log('[app.js] SensorPush value is '+this.value);
+        console.log('[app.js] SensorPush value is '+this.value);
         if(intervalPush==0){
             intervalPush = setInterval(function(e){
                 //console.log('[app.js] light sensor value: '+self.value);
             },500);
         }
-        if(this.value < 60){
+        if(this.value < 85){
             led8.on();
             //console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
-            if(oldValuePush>60)
+            if(oldValuePush>85)
             {
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
@@ -288,7 +288,7 @@ board.on('ready', function() {
                 led8.off();
             }, 2000);
         }
-        if(this.value>=60)
+        if(this.value>=85)
         {
             oldValuePush = this.value;
         }
