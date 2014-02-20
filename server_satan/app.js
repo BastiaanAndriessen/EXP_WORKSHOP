@@ -62,9 +62,25 @@ board.on('ready', function() {
 
     //server
     io.sockets.on('connection', function (socket) {
+        updateScores(socket);
+
         console.log('[app.js] satan server. connection established.');
         globalSocket = socket;
         console.log('[app.js] globalSocket '+globalSocket);
+
+        //disconnect
+        socket.on('disconnect', function()
+        {
+            console.log(">>>>> disconnect");
+            led6.off();
+            led6.off();
+            led8.off();
+            led12.off();
+            led13.off();
+            servo.stop();
+            contServo.stop();
+            contFan.stop();
+        });
 
         socket.on('LEAP_DATA', function (data) {
             //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
