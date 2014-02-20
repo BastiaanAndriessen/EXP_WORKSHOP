@@ -119,56 +119,57 @@ html body #container #scoreboard {
 /* line 62, ../sass/all.scss */
 html body #container #scoreboard h2 {
   width: 135px;
+  margin-bottom: 3em;
   font-family: 'bebas';
   font-size: 15pt;
   color: white;
   text-align: center;
 }
-/* line 70, ../sass/all.scss */
+/* line 71, ../sass/all.scss */
 html body #container #scoreboard #score_satan, html body #container #scoreboard #score_god {
   width: 50%;
   float: left;
   height: 300px;
 }
-/* line 75, ../sass/all.scss */
+/* line 76, ../sass/all.scss */
 html body #container #scoreboard #score_satan #abilities, html body #container #scoreboard #score_god #abilities {
   width: 100%;
 }
-/* line 78, ../sass/all.scss */
+/* line 79, ../sass/all.scss */
 html body #container #scoreboard #score_satan #abilities .ability, html body #container #scoreboard #score_god #abilities .ability {
   background-repeat: no-repeat;
 }
-/* line 82, ../sass/all.scss */
+/* line 83, ../sass/all.scss */
 html body #container #scoreboard #score_satan #abilities .default, html body #container #scoreboard #score_god #abilities .default {
   background-image: url("../assets/src/points/point_default.png");
 }
-/* line 86, ../sass/all.scss */
+/* line 87, ../sass/all.scss */
 html body #container #scoreboard #score_satan #abilities .gold, html body #container #scoreboard #score_god #abilities .gold {
   background-image: url("../assets/src/points/point_default_gold.png");
 }
-/* line 93, ../sass/all.scss */
+/* line 94, ../sass/all.scss */
 html body #container #scoreboard #score_satan h2 {
   margin-left: 4em;
 }
-/* line 96, ../sass/all.scss */
+/* line 97, ../sass/all.scss */
 html body #container #scoreboard #score_satan #abilities .ability {
   background-position: center right;
 }
-/* line 104, ../sass/all.scss */
+/* line 105, ../sass/all.scss */
 html body #container #scoreboard #score_god h2 {
   margin-left: 4.5em;
 }
-/* line 108, ../sass/all.scss */
+/* line 109, ../sass/all.scss */
 html body #container #ability_panel {
   width: 60%;
 }
-/* line 111, ../sass/all.scss */
+/* line 112, ../sass/all.scss */
 html body #container #ability_panel div {
   height: 5em;
   width: 100%;
   margin-bottom: .5em;
 }
-/* line 117, ../sass/all.scss */
+/* line 118, ../sass/all.scss */
 html body #container #ability_panel p {
   font-family: 'COUTURE';
   color: white;
@@ -179,23 +180,23 @@ html body #container #ability_panel p {
   text-align: center;
   float: left;
 }
-/* line 128, ../sass/all.scss */
+/* line 129, ../sass/all.scss */
 html body #container #ability_panel .satan {
   background-color: red;
 }
-/* line 132, ../sass/all.scss */
+/* line 133, ../sass/all.scss */
 html body #container #ability_panel .god {
   background-color: blue;
 }
-/* line 136, ../sass/all.scss */
+/* line 137, ../sass/all.scss */
 html body #container #ability_panel .active {
   opacity: 1;
 }
-/* line 140, ../sass/all.scss */
+/* line 141, ../sass/all.scss */
 html body #container #ability_panel .inactive {
   opacity: 0.5;
 }
-/* line 147, ../sass/all.scss */
+/* line 148, ../sass/all.scss */
 html .center {
   margin-left: auto;
   margin-right: auto;
