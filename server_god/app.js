@@ -1,10 +1,7 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-<<<<<<< HEAD
-var ip = "172.30.27.187";
-=======
+
 var ip = "172.30.33.186";
->>>>>>> a65eda4ca3993f2b40646e081c4d04861212afba
 
 var express = require('express');
 var app = express();
