@@ -350,13 +350,14 @@ board.on('ready', function() {
                 countTouched+=0;
                 if(earthquakeActivated == false)
                 {
+                    if(isCooldownEarthquake == false)
+                    {
+                        earthquakeActivated = true;
+                    } 
                     abilities1 += 1;
 
                 }
-                if(isCooldownEarthquake == false)
-                {
-                    earthquakeActivated = true;
-                } 
+                
                 updateScores();
 
             }
@@ -416,15 +417,18 @@ board.on('ready', function() {
             if(tiltCountTouched>2)
             {
                 tiltCountTouched+=0;
-                if(tiltActivated == false)
-                {
-                    abilities2 += 1;
-                }
-                //tiltActivated = true;
                 if(isCooldownTilt == false)
                 {
+                    if(tiltActivated == false)
+                    {
+                        abilities2 += 1;
+                    }
                     tiltActivated = true;
+
                 } 
+                
+                //tiltActivated = true;
+                
                 updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
