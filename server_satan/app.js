@@ -237,7 +237,7 @@ board.on('ready', function() {
                 });
                 player.play();
                 points += 50;
-                //console.log('[app.js] points are '+points);
+                console.log('[app.js] points are '+points);
                 oldValue = this.value;
             }
             var interval2 = setInterval(function(){
@@ -273,7 +273,7 @@ board.on('ready', function() {
                 });
                 player.play();
                 points += 50;
-                //console.log('[app.js] points are '+points);
+                console.log('[app.js] points are '+points);
                 oldValuePush = this.value;
 
                 if(rot>360)
@@ -345,8 +345,8 @@ board.on('ready', function() {
 
 
 
-            //console.log("[app.js] countTouched is "+countTouched);
-            //console.log("[app.js] your points are "+points);
+            console.log("[app.js] countTouched is "+countTouched);
+            console.log("[app.js] your points are "+points);
         }
     });
 
@@ -401,8 +401,8 @@ board.on('ready', function() {
             {
                 tiltCountTouched += 1;
             }
-            //console.log("[app.js] countTouched is "+tiltCountTouched);
-            //console.log("[app.js] your points are "+playerTwoPoints);
+            console.log("[app.js] countTouched is "+tiltCountTouched);
+            console.log("[app.js] your points are "+playerTwoPoints);
         }
     });
 
