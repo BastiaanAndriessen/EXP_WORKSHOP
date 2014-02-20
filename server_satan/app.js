@@ -165,7 +165,8 @@ board.on('ready', function() {
 
     ws.on('message', function(data, flags) {
         frame = JSON.parse(data);
-        if(!isTiltActive)
+        //console.log('>>>>> isTiltActive '+isTiltActive);
+        if(isTiltActive == false)
         {
             var rightHandId = 0;
             var leftHandId = 0;
@@ -344,8 +345,12 @@ board.on('ready', function() {
             if(countTouched>2)
             {
                 countTouched+=0;
+                if(earthquakeActivated == false)
+                {
+                    abilities1 += 1;
+
+                }
                 earthquakeActivated = true;
-                abilities1 += 1;
                 updateScores();
             }
             else
@@ -404,8 +409,11 @@ board.on('ready', function() {
             if(tiltCountTouched>2)
             {
                 tiltCountTouched+=0;
+                if(tiltActivated == false)
+                {
+                    abilities2 += 1;
+                }
                 tiltActivated = true;
-                abilities2 += 1;
                 updateScores();
                 //console.log('>>>>>>>>>> tiltActivated');
 
@@ -432,7 +440,7 @@ board.on('ready', function() {
             //console.log('[app.js] >>>> gestures');
 
 
-            if(!isTiltActive)
+            if(isTiltActive == false)
             {
                 if(gestures.length > 0) {
 
@@ -649,10 +657,12 @@ if(godFrame)
 //updateScore
 function updateScores()
 {
+    console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // '+abilities1+' // '+abilities2);
 
-    console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // ');
-    socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated});
-    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
+    io.sockets.on('connection', function (socket) {
+        socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated});
+        console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
+    });
 }
 
 
