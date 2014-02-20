@@ -15,14 +15,7 @@ var abilities2 = 0;
 
 function init()
 {
-    console.log('[client.js] god client init');
     socket = io.connect(':1337');
-
-    /*socket.on('disconnect', function(){
-        console.log('[client.js] disconnected to opponent server');
-        connectedToServer = false;
-        $('#server_status').removeClass('green').removeClass('red').addClass('red').text('connection status: disconnected');
-    });*/
 
     socket.on('DISCONNECT', function(data){
         console.log('[client.js] disconnected to opponent server');
@@ -47,8 +40,6 @@ function init()
             score1 = parseFloat(data['score1']);
             setScoreInterval($('#score_satan_num'), currentScore1, score1, interval);
         }
-        //$('#score_satan_num').text(score1);
-        //$('#score_god_num').text(score2);
 
         if(score2 < data['score2']){
             score2 = parseFloat(data['score2']);

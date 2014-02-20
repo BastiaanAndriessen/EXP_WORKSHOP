@@ -1,33 +1,30 @@
 var currentServerPort = 1336;
-var opponentServerPort = 1337;
-
 var ip = "172.30.33.186";
 
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+var webSocket = require('ws'), ws = new webSocket('ws://127.0.0.1:6437');
 
-var webSocket = require('ws'),
-ws = new webSocket('ws://127.0.0.1:6437');
-var Speaker = require('speaker'),
-five = require('johnny-five'),
-board = new five.Board(),
-led6, led7, led8, led12, led13, frame, rot = 0, diffRot = 179,
-rightEnabled, leftEnabled, godLeftEnabled, godRightEnabled;
+//audio control
+var Speaker = require('speaker');
+var Player = require('player');
 
+//arduino control vars
+var five = require('johnny-five'),
+    board = new five.Board(),
+    led6, led7, led8, led12, led13, frame, rot = 0,
+    rightEnabled, leftEnabled, godLeftEnabled, godRightEnabled;
+//leap vars
 var Leap = require('leapjs');
 var controller = new Leap.Controller({enableGestures: true});
-
 var godFrame;
 
-
+//game related vars
 var earthquakeActivated = false, countTouched = 0, points = 0;
 var tiltActivated = false, tiltCountTouched = 0, playerTwoPoints = 0;
 
-var Player = require('player');
-
-var leapMotionDataReceived = 0;
 var abilities1 = 0;
 var abilities2 = 0;
 var isTiltActive = false;
@@ -35,13 +32,8 @@ var isTiltActive = false;
 var isCooldownTilt = false;
 var isCooldownEarthquake = false;
 
-var globalSocket;
-
 var vulcanoActivated;
 var waterActivated;
-
-
-
 
 app.use(express.static(__dirname + '/public'));
 console.log('[app.js] satan: get path http://'+ip+':'+currentServerPort);
@@ -49,28 +41,54 @@ app.get('http://'+ip+':'+currentServerPort, function(req, res){
     res.sendfile(__dirname + '/public/index.html');
 });
 
-
-
 //code arduino en leap
-console.log('[app.js] >>> leap '+Leap);
-
 board.on('ready', function() {
-    //led7 = new five.Led(7);
-            led6 = new five.Led(6);
-        led7 = new five.Led(7);
+    led6 = new five.Led(6);
+    led7 = new five.Led(7);
+    led8 = new five.Led(8);
+    led12 = new five.Led(12);
+    led13 = new five.Led(13);
 
+    var servo = new five.Servo({
+        pin: 10
+    });
+
+    var sensor = new five.Sensor("A0");
+    var interval = 0;
+    var oldValue = 100;
+
+    var sensorPush = new five.Sensor("A1");
+    var intervalPush = 0;
+    var oldValuePush = 100;
+
+    var contServo = new five.Servo(9);
+    var rot = 0;
+    var contServoInterval = setInterval(function(){
+        if(rot>360){rot=0;}
+        contServo.to(rot);
+        rot+=359;
+    }, 800);
+
+    var contFan = new five.Servo(11);
+    var contRot = 0;
+    var contFanInterval = setInterval(function(){
+        if(contRot>360){contRot=0;}
+        contFan.to(contRot);
+        contRot+=359;
+    }, 100);
+
+    //input vars
+    var pin = new five.Pin(4);
+    var pinTwo = new five.Pin(2);
 
     //server
-    io.sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket){
         updateScores(socket);
 
         console.log('[app.js] satan server. connection established.');
-        globalSocket = socket;
-        console.log('[app.js] globalSocket '+globalSocket);
+        io.sockets.emit('CONNECTED', 'connected');
 
-        //disconnect
-        socket.on('disconnect', function()
-        {
+        socket.on('disconnect', function(){
             console.log(">>>>> disconnect");
             led6.off();
             led6.off();
@@ -83,623 +101,458 @@ board.on('ready', function() {
         });
 
         socket.on('LEAP_DATA', function (data) {
-            //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
-            //leapMotionDataReceived++;
+            godFrame = JSON.parse(data);
+            var godRightHandId = 0;
+            var godLeftHandId = 0;
 
-            //console.log('[app.js] server_satan, data leap is '+data);
-            //console.log('[app.js] server_satan, data leap hands is '+data.hands);
-
-                godFrame = JSON.parse(data);
-                var godRightHandId = 0;
-                var godLeftHandId = 0;
-
-                //console.log('[app.js] json.parse data is godFrame: '+godFrame.hands.length);
-
-                if(godFrame.hands.length>0){
-                    if(godFrame.hands.length < 2){
+            if(godFrame.hands.length>0){
+                if(godFrame.hands.length < 2){
+                    godRightHandId = godFrame.hands[0].id;
+                }else{
+                    if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
                         godRightHandId = godFrame.hands[0].id;
-                        //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                        //console.log('[app.js] direction'+frame.hands[0].direction[0]);
-
+                        godLeftHandId = godFrame.hands[1].id;
                     }else{
-                        if(godFrame.hands[0].palmPosition[0] > godFrame.hands[1].palmPosition[0]){
-                            godRightHandId = godFrame.hands[0].id;
-                            godLeftHandId = godFrame.hands[1].id;
+                        godRightHandId = godFrame.hands[1].id;
+                        godLeftHandId = godFrame.hands[0].id;
+                    }
+                }
+            }
+
+            if(godLeftHandId!=0 && !godLeftEnabled){
+                led6.on();
+                godLeftEnabled = true;
+                var player = new Player('pinball3.mp3');
+
+                player.play(function(err, player){
+                    console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(godLeftHandId == 0){
+                led6.off();
+                godLeftEnabled = false;
+            }
+
+            if(godRightHandId!=0 && !godRightEnabled){
+                led7.on();
+                godRightEnabled = true;
+                console.log('[app.js] rot: '+rot);
+                var player = new Player('pinball3.mp3');
+
+                player.play(function(err, player){
+                    //console.log('[app.js] play pinball3')
+                });
+                player.play();
+            }else if(godRightHandId == 0){
+                led7.off();
+                godRightEnabled = false;
+            }
+        });
+    
+        socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
+            console.log('[app.js] satan server. received swipe directions: '+data);
+            if(data == 'true'){
+                console.log('[app.js] satan server. >>>>> TRUE');
+                if(tiltActivated){
+                    var player = new Player('pinball2.mp3');
+                    player.play(function(err, player){
+                        //console.log('[app.js] play pinball2')
+                    });
+                    player.play();
+                    led8.on();
+                    var gestureInterval = setInterval(function(){
+                        clearInterval(gestureInterval);
+                        led8.off();
+                    }, 2000);
+
+                    tiltActivated = false;
+                    tiltCountTouched = 0;
+                    updateScores(socket);
+                }
+            }
+        });
+
+        //receive leap motion data
+        ws.on('message', function(data, flags) {
+            frame = JSON.parse(data);
+            if(isTiltActive == false){
+                var rightHandId = 0;
+                var leftHandId = 0;
+                if(frame.hands.length>0){
+                    if(frame.hands.length < 2){
+                        rightHandId = frame.hands[0].id;
+                    }else{
+                        if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
+                            rightHandId = frame.hands[0].id;
+                            leftHandId = frame.hands[1].id;
                         }else{
-                            godRightHandId = godFrame.hands[1].id;
-                            godLeftHandId = godFrame.hands[0].id;
+                            rightHandId = frame.hands[1].id;
+                            leftHandId = frame.hands[0].id;
                         }
                     }
                 }
 
-                if(godLeftHandId!=0 && !godLeftEnabled){
-                    led6.on();
-                    godLeftEnabled = true;
-                    var player = new Player('pinball3.mp3');
-
-                    player.play(function(err, player){
-                        console.log('[app.js] play pinball3')
-                    });
-                    player.play();
-                }else if(godLeftHandId == 0){
-                    led6.off();
-                    godLeftEnabled = false;
-                }
-
-                if(godRightHandId!=0 && !godRightEnabled){
-                    led7.on();
-                    godRightEnabled = true;
-                    console.log('[app.js] rot: '+rot);
+                if(leftHandId!=0 && !leftEnabled){
+                    led12.on();
+                    leftEnabled = true;
                     var player = new Player('pinball3.mp3');
 
                     player.play(function(err, player){
                         //console.log('[app.js] play pinball3')
                     });
                     player.play();
-                }else if(godRightHandId == 0){
-                    led7.off();
-                    godRightEnabled = false;
+                }else if(leftHandId == 0){
+                    led12.off();
+                    leftEnabled = false;
                 }
-        });
-    
-        socket.on('LEAP_SWIPE_DIRECTIONS', function(data){
-                console.log('[app.js] satan server. received swipe directions: '+data);
-                if(data == 'true')
-                {
-                    console.log('[app.js] satan server. >>>>> TRUE');
-                    if(tiltActivated)
-                    {
-                        var player = new Player('pinball2.mp3');
 
-                                    player.play(function(err, player){
-                                        //console.log('[app.js] play pinball2')
-                                    });
-                                    player.play();
-                                    led8.on();
-                                    var gestureInterval = setInterval(function(){
-                                        clearInterval(gestureInterval);
-                                        led8.off();
-                                    }, 2000);
+                if(rightHandId!=0 && !rightEnabled){
+                    led13.on();
+                    rightEnabled = true;
+                    var player = new Player('pinball3.mp3');
 
-                        tiltActivated = false;
-                        tiltCountTouched = 0;
-                        updateScores(socket);
-                    }
+                    player.play(function(err, player){
+                        //console.log('[app.js] play pinball3')
+                    });
+                    player.play();
+                }else if(rightHandId == 0){
+                    led13.off();
+                    rightEnabled = false;
                 }
-            
-            /*console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[0]);
-            console.log('[app.js] satan server. received swipe directions: '+data.swipeDirection[1]);
-            if(tiltActivated)
-            {
-                if(data.swipeDirection[0]==1 || data.swipeDirection[1]==1)
-                {
-                    tiltActivated = false;
-                    tiltCountTouched = 0;
-                }
-            }*/
+            }
+
         });
 
-
-    led8 = new five.Led(8);
-    led12 = new five.Led(12);
-    led13 = new five.Led(13);
-
-    var servo = new five.Servo({
-        pin: 10
-    });
-
-    ws.on('message', function(data, flags) {
-        frame = JSON.parse(data);
-        //console.log('>>>>> isTiltActive '+isTiltActive);
-        if(isTiltActive == false)
-        {
-            var rightHandId = 0;
-            var leftHandId = 0;
-            if(frame.hands.length>0){
-                if(frame.hands.length < 2){
-                    rightHandId = frame.hands[0].id;
-                    //direction 0 kleiner dan 0 = links, groter da 0 = rechts
-                    //console.log('[app.js] direction'+frame.hands[0].direction[0]);
-
-                }else{
-                    if(frame.hands[0].palmPosition[0] > frame.hands[1].palmPosition[0]){
-                        rightHandId = frame.hands[0].id;
-                        leftHandId = frame.hands[1].id;
+        //lightsensor
+        sensor.scale([0, 100]).on("read", function(){
+            if(interval==0){
+                interval = setInterval(function(e){
+                    //console.log('[app.js] light sensor value: '+self.value);
+                },500);
+            }
+            if(this.value < 30){
+                led8.on();
+                if(oldValue>30){
+                    var player = new Player('pinball1.mp3');
+                    player.play(function(err, player){
+                        //console.log('[app.js] play pinball1')
+                    });
+                    player.play();
+                    if(waterActivated){
+                        points += 275;
                     }else{
-                        rightHandId = frame.hands[1].id;
-                        leftHandId = frame.hands[0].id;
+                        points += 35;
                     }
+                    console.log('[app.js] points are '+points);
+                    oldValue = this.value;
+                    updateScores(socket);
                 }
+                var interval2 = setInterval(function(){
+                    updateScores(socket);
+                    clearInterval(interval2);
+                    led8.off();
+                }, 2000);
             }
-
-            if(leftHandId!=0 && !leftEnabled){
-                led12.on();
-                leftEnabled = true;
-                var player = new Player('pinball3.mp3');
-
-                player.play(function(err, player){
-                    //console.log('[app.js] play pinball3')
-                });
-                player.play();
-            }else if(leftHandId == 0){
-                led12.off();
-                leftEnabled = false;
+            if(this.value>=30){
+                oldValue = this.value;
             }
+        });
 
-            if(rightHandId!=0 && !rightEnabled){
-                led13.on();
-                rightEnabled = true;
-                //console.log('[app.js] rot: '+rot);
-                var player = new Player('pinball3.mp3');
-
-                player.play(function(err, player){
-                    //console.log('[app.js] play pinball3')
-                });
-                player.play();
-            }else if(rightHandId == 0){
-                led13.off();
-                rightEnabled = false;
+        //druksensor
+        sensorPush.scale([0, 100]).on("read", function() {
+            //console.log('[app.js] SensorPush value is '+this.value);
+            if(intervalPush==0){
+                intervalPush = setInterval(function(e){
+                    //console.log('[app.js] light sensor value: '+self.value);
+                },500);
             }
-        }
-        
-    });
+            if(this.value < 85){
+                led8.on();
+                //console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
+                if(oldValuePush>85){
+                    var player = new Player('pinball1.mp3');
+                    player.play(function(err, player){
+                        //console.log('[app.js] play pinball1')
+                    });
+                    player.play();
+                    if(vulcanoActivated){
+                        playerTwoPoints += 275;
+                    }else{
+                        playerTwoPoints += 35;
+                    }
+                    console.log('[app.js] points are '+playerTwoPoints);
+                    oldValuePush = this.value;
+                    updateScores(socket);
+                    if(rot>360){
+                        rot=0;
+                    }
+                    servo.to(rot);
+                    rot+=20;
+                }
+                var intervalPush2 = setInterval(function(){
+                    updateScores(socket);
+                    clearInterval(intervalPush2);
+                    led8.off();
+                }, 2000);
+            }
+            if(this.value>=85){
+                oldValuePush = this.value;
+            }
+        });
 
-    var sensor = new five.Sensor("A0");
-    var interval = 0;
-    var oldValue = 100;
-    sensor.scale([0, 100]).on("read", function() {
-        var self = this;
-        if(interval==0){
-            interval = setInterval(function(e){
-                //console.log('[app.js] light sensor value: '+self.value);
-            },500);
-        }
-        if(this.value < 30){
-            led8.on();
-            //console.log('[app.js] this.value is '+this.value);
-            if(oldValue>30)
-            {
+        pin.read(function(value){
+            if(value == 1){
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
                     //console.log('[app.js] play pinball1')
                 });
                 player.play();
-                if(waterActivated)
-                {
-                    points += 275;
-                }
-                else
-                {
-                    points += 35;
-                }
-                console.log('[app.js] points are '+points);
-                //abilities2 += 1;
-                oldValue = this.value;
+                points += 125;
                 updateScores(socket);
+                if(countTouched<4){
+                    abilities1 += 1;
+                    countTouched += 1;
+                    if(countTouched == 4){earthquakeActivated = true;}
+                    if(countTouched == 1){vulcanoActivated = true;}
+                    updateScores(socket);
+                }else{
+                    abilities1 += 0;
+                    countTouched += 0;
+                }
+                console.log("[app.js] satan countTouched: "+countTouched+". satan score:"+points);
             }
-            var interval2 = setInterval(function(){
-                //abilities2 -= 1;
-                updateScores(socket);
-                clearInterval(interval2);
-                led8.off();
-            }, 2000);
-        }
-        if(this.value>=30)
-        {
-            oldValue = this.value;
-        }
-    });
+        });
 
-    var sensorPush = new five.Sensor("A1");
-    var intervalPush = 0;
-    var oldValuePush = 100;
-    sensorPush.scale([0, 100]).on("read", function() {
-        //console.log('[app.js] SensorPush value is '+this.value);
-        if(intervalPush==0){
-            intervalPush = setInterval(function(e){
-                //console.log('[app.js] light sensor value: '+self.value);
-            },500);
-        }
-        if(this.value < 85){
-            led8.on();
-            //console.log('[app.js] this.value is '+this.value+' and oldvalue is '+oldValuePush);
-            if(oldValuePush>85)
-            {
+        pinTwo.read(function(value) {
+            if(value == 1){
+                playerTwoPoints += 125;
+                updateScores(socket);
                 var player = new Player('pinball1.mp3');
                 player.play(function(err, player){
-                   // console.log('[app.js] play pinball1')
+                    //console.log('[app.js] play pinball1')
                 });
                 player.play();
-                if(vulcanoActivated)
-                {
-                    playerTwoPoints += 275;
-                }
-                else
-                {
-                    playerTwoPoints += 35;
-                }
-                console.log('[app.js] points are '+playerTwoPoints);
-                //abilities1 += 1;
-                oldValuePush = this.value;
-                updateScores(socket);
-                if(rot>360)
-                {
-                    rot=0;
-                }
-                servo.to(rot);
-                rot+=20;
-            }
-            var intervalPush2 = setInterval(function(){
-                //abilities1 -= 1;
-                updateScores(socket);
-                clearInterval(intervalPush2);
-                led8.off();
-            }, 2000);
-        }
-        if(this.value>=85)
-        {
-            oldValuePush = this.value;
-        }
-    });
-
-    var contServo = new five.Servo(9);
-    rot = 0;
-    var contServoInterval = setInterval(function(){
-        if(rot>360)
-        {
-            rot=0;
-        }
-        contServo.to(rot);
-        rot+=359;
-    }, 800);
-
-    var contFan = new five.Servo(11);
-    var contRot = 0;
-    var contFanInterval = setInterval(function(){
-        if(contRot>360)
-        {
-            contRot=0;
-        }
-        contFan.to(contRot);
-        contRot+=359;
-    }, 100);
-
-
-    var pin = new five.Pin(4);
-    pin.read(function(value) {
-        //console.log("[app.js] value button is "+value);
-        if(value == 1)
-        {
-            var player = new Player('pinball1.mp3');
-            player.play(function(err, player){
-                //console.log('[app.js] play pinball1')
-            });
-            player.play();
-            points += 125;
-            updateScores(socket);
-            if(countTouched<4)
-            {
-                abilities1 += 1;
-                countTouched += 1;
-                if(countTouched == 4)
-                {
-                    earthquakeActivated = true;
-                }
-                if(countTouched == 1)
-                {
-                    vulcanoActivated = true;
-                }
-                updateScores(socket);
-            }
-            else
-            {
-                abilities1 += 0;
-                countTouched += 0;
-            }
-            /*if(countTouched>2)
-            {
-                countTouched+=0;
-                if(earthquakeActivated == false)
-                {
-                    abilities1 += 1;
-
-                }
-                earthquakeActivated = true;
-                updateScores(socket);
-            }
-            else
-            {
-                countTouched += 1;
-            }*/
-
-
-
-            console.log("[app.js] countTouched is "+countTouched);
-            console.log("[app.js] your points are "+points);
-        }
-    });
-
-    var pinTwo = new five.Pin(2);
-    pinTwo.read(function(value) {
-        //console.log("[app.js] value button is "+value);
-        if(value == 1)
-        {
-            playerTwoPoints += 125;
-            updateScores(socket);
-            var player = new Player('pinball1.mp3');
-            player.play(function(err, player){
-                //console.log('[app.js] play pinball1')
-            });
-            player.play();
-            if(tiltCountTouched < 4)
-            {
-                abilities2 += 1;
-                tiltCountTouched += 1;
-                if(tiltCountTouched == 4)
-                {
-                    tiltActivated = true;
-                }
-                if(tiltCountTouched == 2)
-                {
-                    waterActivated = true;
-                }
-                updateScores(socket);
-            }
-            else
-            {
-                tiltCountTouched += 0;
-                abilities2 += 0;
-            }
-            /*if(tiltCountTouched>2)
-            {
-                tiltCountTouched+=0;
-                if(tiltActivated == false)
-                {
+                if(tiltCountTouched < 4){
                     abilities2 += 1;
+                    tiltCountTouched += 1;
+                    if(tiltCountTouched == 4){tiltActivated = true;}
+                    if(tiltCountTouched == 2){waterActivated = true;}
+                    updateScores(socket);
+                }else{
+                    tiltCountTouched += 0;
+                    abilities2 += 0;
                 }
-                tiltActivated = true;
-                updateScores(socket);
-                //console.log('>>>>>>>>>> tiltActivated');
-
+                console.log("[app.js] god countTouched: "+tiltCountTouched+". god score:"+playerTwoPoints);
             }
-            else
-            {
-                tiltCountTouched += 1;
-            }*/
-            console.log("[app.js] countTouched is "+tiltCountTouched);
-            console.log("[app.js] your points are "+playerTwoPoints);
-        }
-    });
+        });
 
-    Leap.loop({enableGestures: true},
-        function(frame)
-        {
+        Leap.loop({enableGestures: true},function(frame){
             var gestures = frame.gestures,
             circle,
             pointable,
             direction,
             normal;
 
-            //niet uit commentaar halen indien niet nodig
-            //console.log('[app.js] >>>> gestures');
+            if(isTiltActive == false){
+                if(gestures.length > 0){
+                    for(var i = 0; i < frame.gestures.length; i++){
+                        var gesture = frame.gestures[i];
+                        if(gesture.type == "swipe") {
+                            //Classify swipe as either horizontal or vertical
+                            var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
+                            //Classify as right-left or up-down
+                            if(isHorizontal){
+                                if(gesture.direction[0] > 0){
+                                    swipeDirection = "right";
+                                    if(earthquakeActivated){
+                                        var player = new Player('pinball2.mp3');
+                                        player.play(function(err, player){
+                                            //console.log('[app.js] play pinball2')
+                                        });
+                                        player.play();
+                                        led8.on();
+                                        var gestureInterval = setInterval(function(){
+                                            clearInterval(gestureInterval);
+                                            led8.off();
+                                        }, 2000);
+                                        earthquakeActivated = false;
+                                        countTouched = 0;
+                                        updateScores(socket);
 
+                                        isCooldownEarthquake = true;
+                                        var cooldownInterval = setInterval(function(){
+                                            clearInterval(cooldownInterval);
+                                            isCooldownEarthquake = false;
+                                            console.log('[app.js] cooldown false'+isCooldownEarthquake);
+                                        }, 10000);
+                                    }
+                                } else {
+                                    swipeDirection = "left";
+                                    if(earthquakeActivated){
+                                        var player = new Player('pinball2.mp3');
+                                        player.play(function(err, player){
+                                            //console.log('[app.js] play pinball2')
+                                        });
+                                        player.play();
+                                        led8.on();
+                                        var gestureInterval = setInterval(function(){
+                                            clearInterval(gestureInterval);
+                                            led8.off();
+                                        }, 2000);
+                                        earthquakeActivated = false;
+                                        countTouched = 0;
+                                        updateScores(socket);
 
-            if(isTiltActive == false)
-            {
-                if(gestures.length > 0) {
+                                        isCooldownEarthquake = true;
+                                        var cooldownInterval = setInterval(function(){
+                                            clearInterval(cooldownInterval);
+                                            isCooldownEarthquake = false;
+                                            console.log('[app.js] cooldown false'+isCooldownEarthquake);
+                                        }, 10000);
+                                    }
+                                }
+                            } else { //vertical
+                                if(gesture.direction[1] > 0){
+                                    swipeDirection = "up";
+                                    if(earthquakeActivated){
+                                        var player = new Player('pinball2.mp3');
+                                        player.play(function(err, player){
+                                            //console.log('[app.js] play pinball2')
+                                        });
+                                        player.play();
+                                        led8.on();
+                                        var gestureInterval = setInterval(function(){
+                                            clearInterval(gestureInterval);
+                                            led8.off();
+                                        }, 2000);
+                                        earthquakeActivated = false;
+                                        countTouched = 0;
 
-            for (var i = 0; i < frame.gestures.length; i++) {
-                  var gesture = frame.gestures[i];
+                                        updateScores(socket);
 
-                  if (gesture.type == "swipe") {
-                      //Classify swipe as either horizontal or vertical
-                      var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
-                      //Classify as right-left or up-down
-                      if(isHorizontal){
-                          if(gesture.direction[0] > 0){
-                              swipeDirection = "right";
-                              if(earthquakeActivated)
-                              {
-                                var player = new Player('pinball2.mp3');
+                                        isCooldownEarthquake = true;
+                                        var cooldownInterval = setInterval(function(){
+                                            clearInterval(cooldownInterval);
+                                            isCooldownEarthquake = false;
+                                            console.log('[app.js] cooldown false'+isCooldownEarthquake);
+                                        }, 10000);
+                                    }
+                                } else {
+                                    swipeDirection = "down";
+                                    if(earthquakeActivated){
+                                        var player = new Player('pinball2.mp3');
+                                        player.play(function(err, player){
+                                            //console.log('[app.js] play pinball2')
+                                        });
+                                        player.play();
+                                        led8.on();
+                                        var gestureInterval = setInterval(function(){
+                                            clearInterval(gestureInterval);
+                                            led8.off();
+                                        }, 2000);
+                                        earthquakeActivated = false;
 
-                                player.play(function(err, player){
-                                    //console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-                                //console.log('[app.js] horizontal right');
-                                earthquakeActivated = false;
-                                //abilities1 -= 1;
-                                countTouched = 0;
-                                updateScores(socket);
+                                        countTouched = 0;
+                                        updateScores(socket);
 
-                                isCooldownEarthquake = true;
-                                var cooldownInterval = setInterval(function(){
-                                    clearInterval(cooldownInterval);
-                                    isCooldownEarthquake = false;
-                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
-                                }, 10000);
-                              }
-                          } else {
-                              swipeDirection = "left";
-                              if(earthquakeActivated)
-                              {
-                                var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                    //console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-                                //console.log('[app.js] horizontal left');
-                                earthquakeActivated = false;
-                                //abilities1 -= 1;
-                                countTouched = 0;
-                                updateScores(socket);
-
-                                isCooldownEarthquake = true;
-                                var cooldownInterval = setInterval(function(){
-                                    clearInterval(cooldownInterval);
-                                    isCooldownEarthquake = false;
-                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
-                                }, 10000);
-                              }
-                          }
-                      } else { //vertical
-                          if(gesture.direction[1] > 0){
-                              swipeDirection = "up";
-                              if(earthquakeActivated)
-                              {
-                                var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                    //console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-                                //console.log('[app.js] vertical up');
-                                earthquakeActivated = false;
-                                countTouched = 0;
-                                //abilities1 -= 1;
-
-                                updateScores(socket);
-
-                                isCooldownEarthquake = true;
-                                var cooldownInterval = setInterval(function(){
-                                    clearInterval(cooldownInterval);
-                                    isCooldownEarthquake = false;
-                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
-                                }, 10000);
-                              }
-                          } else {
-                              swipeDirection = "down";
-                              if(earthquakeActivated)
-                              {
-                                var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                    //console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                }, 2000);
-                                //console.log('[app.js] vertical down');
-                                earthquakeActivated = false;
-                               // abilities1 -= 1;
-
-                                countTouched = 0;
-                                updateScores(socket);
-
-                                isCooldownEarthquake = true;
-                                var cooldownInterval = setInterval(function(){
-                                    clearInterval(cooldownInterval);
-                                    isCooldownEarthquake = false;
-                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
-                                }, 10000);
-
-                              }
-                          }
-                      }
-                   }
-                 }
+                                        isCooldownEarthquake = true;
+                                        var cooldownInterval = setInterval(function(){
+                                            clearInterval(cooldownInterval);
+                                            isCooldownEarthquake = false;
+                                            console.log('[app.js] cooldown false'+isCooldownEarthquake);
+                                        }, 10000);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            
-        }
-    })
-});
+        })
+    });
 
-/* ---> kopieren naar godserver  <--- */
-if(godFrame)
-{
-    Leap.loop({enableGestures: true},
-        function(godFrame)
-        {
+    if(godFrame){
+        Leap.loop({enableGestures: true},function(godFrame){
             var gestures = frame.godFrame,
             circle,
             pointable,
             direction,
             normal;
 
-            //niet uit commentaar halen indien niet nodig
-            //console.log('[app.js] >>>> gestures');
+            if(gestures.length > 0){
+                for(var i = 0; i < godFrame.gestures.length; i++) {
+                    var gesture = godFrame.gestures[i];
 
+                    if(gesture.type == "swipe"){
+                        //Classify swipe as either horizontal or vertical
+                        var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
+                        //Classify as right-left or up-down
 
-            if(gestures.length > 0) {
+                        if(isHorizontal){
+                            if(gesture.direction[0] > 0){
+                                swipeDirection = "right";
+                                if(tiltActivated){
+                                    var player = new Player('pinball2.mp3');
+                                    player.play(function(err, player){
+                                       // console.log('[app.js] play pinball2')
+                                    });
+                                    player.play();
+                                    led8.on();
+                                    isTiltActive = true;
+                                    var gestureInterval = setInterval(function(){
+                                        clearInterval(gestureInterval);
+                                        led8.off();
+                                        isTiltActive = false;
+                                    }, 6000);
+                                    tiltActivated = false;
+                                    tiltCountTouched = 0;
+                                    updateScores(socket);
 
-            for (var i = 0; i < godFrame.gestures.length; i++) {
-                  var gesture = godFrame.gestures[i];
+                                    isCooldownTilt = true;
+                                    var cooldownInterval = setInterval(function(){
+                                        clearInterval(cooldownInterval);
+                                        isCooldownTilt = false;
+                                    }, 10000);
+                                }
+                            }else{
+                                swipeDirection = "left";
+                                if(tiltActivated){
+                                    var player = new Player('pinball2.mp3');
+                                    player.play(function(err, player){
+                                        //console.log('[app.js] play pinball2')
+                                    });
+                                    player.play(socket);
+                                    led8.on();
+                                    var gestureInterval = setInterval(function(){
+                                        clearInterval(gestureInterval);
+                                        led8.off();
+                                    }, 2000);
+                                    //console.log('[app.js] horizontal left');
+                                    tiltActivated = false;
+                                    tiltCountTouched = 0;
+                                    updateScores(socket);
 
-
-                 if (gesture.type == "swipe") {
-                      //Classify swipe as either horizontal or vertical
-                        //console.log('tiltActivated >>>>>> swipe');
-                      var isHorizontal = Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1]);
-                      //Classify as right-left or up-down
-
-                      if(isHorizontal){
-                          if(gesture.direction[0] > 0){
-                              swipeDirection = "right";
-                              if(tiltActivated)
-                              {
+                                    isCooldownTilt = true;
+                                    var cooldownInterval = setInterval(function(){
+                                        clearInterval(cooldownInterval);
+                                        isCooldownTilt = false;
+                                    }, 10000);
+                                }
+                            }
+                        }else{
+                            if(gesture.direction[1] > 0){
                                 var player = new Player('pinball2.mp3');
-
-                                player.play(function(err, player){
-                                   // console.log('[app.js] play pinball2')
-                                });
-                                player.play();
-                                led8.on();
-                                isTiltActive = true;
-                                var gestureInterval = setInterval(function(){
-                                    clearInterval(gestureInterval);
-                                    led8.off();
-                                    isTiltActive = false;
-                                }, 6000);
-                                //console.log('[app.js] horizontal right');
-                                tiltActivated = false;
-                                tiltCountTouched = 0;
-                                //abilities2 -= 1;
-                                updateScores(socket);
-
-                                isCooldownTilt = true;
-                                var cooldownInterval = setInterval(function(){
-                                    clearInterval(cooldownInterval);
-                                    isCooldownTilt = false;
-                                }, 10000);
-                              }
-                          } else {
-                              swipeDirection = "left";
-                              if(tiltActivated)
-                              {
-                                var player = new Player('pinball2.mp3');
-
                                 player.play(function(err, player){
                                     //console.log('[app.js] play pinball2')
                                 });
-                                player.play(socket);
+                                player.play();
                                 led8.on();
                                 var gestureInterval = setInterval(function(){
                                     clearInterval(gestureInterval);
                                     led8.off();
                                 }, 2000);
-                                //console.log('[app.js] horizontal left');
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
-                                //abilities2 -= 1;
                                 updateScores(socket);
 
                                 isCooldownTilt = true;
@@ -707,57 +560,21 @@ if(godFrame)
                                     clearInterval(cooldownInterval);
                                     isCooldownTilt = false;
                                 }, 10000);
-                              }
-                          } 
-                      }
-                      else{
-                         if(gesture.direction[1] > 0){
-                         var player = new Player('pinball2.mp3');
-
-                        player.play(function(err, player){
-                            //console.log('[app.js] play pinball2')
-                        });
-                        player.play();
-                        led8.on();
-                        var gestureInterval = setInterval(function(){
-                            clearInterval(gestureInterval);
-                            led8.off();
-                        }, 2000);
-                        //console.log('[app.js] horizontal right');
-                        tiltActivated = false;
-                        tiltCountTouched = 0;
-                        //abilities2 -= 1;
-                        updateScores(socket);
-
-                        isCooldownTilt = true;
-                        var cooldownInterval = setInterval(function(){
-                            clearInterval(cooldownInterval);
-                            isCooldownTilt = false;
-                        }, 10000);
+                            }
+                        }
                     }
-                      }
-                  }
-              }
-          }
-      });
+                }
+            }
+        });
+    }
+});
 
 
-}
-
-    });
-
-        
-
-
-
- //updateScore
 function updateScores(socket)
 {
     console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // '+abilities1+' // '+abilities2);
-
-    console.log('>>>>> GOD DATA SEND '+globalSocket);
     socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
-    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
+    io.sockets.emit('UPDATE', data);
 }
 
 
