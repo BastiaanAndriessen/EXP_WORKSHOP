@@ -114,12 +114,12 @@ html body #container > hgroup {
 }
 /* line 59, ../sass/all.scss */
 html body #container #scoreboard {
-  width: 660px;
+  width: 750px;
 }
 /* line 62, ../sass/all.scss */
 html body #container #scoreboard h2 {
   width: 135px;
-  margin-bottom: 3em;
+  margin-bottom: 4em;
   font-family: 'bebas';
   font-size: 15pt;
   color: white;
@@ -129,75 +129,124 @@ html body #container #scoreboard h2 {
 html body #container #scoreboard #score_satan, html body #container #scoreboard #score_god {
   width: 50%;
   float: left;
-  height: 300px;
 }
-/* line 76, ../sass/all.scss */
-html body #container #scoreboard #score_satan #abilities, html body #container #scoreboard #score_god #abilities {
+/* line 75, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities, html body #container #scoreboard #score_god .abilities {
   width: 100%;
 }
-/* line 79, ../sass/all.scss */
-html body #container #scoreboard #score_satan #abilities .ability, html body #container #scoreboard #score_god #abilities .ability {
+/* line 78, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .ability, html body #container #scoreboard #score_god .abilities .ability {
   background-repeat: no-repeat;
+  height: 90px;
+  margin-bottom: 1em;
 }
 /* line 83, ../sass/all.scss */
-html body #container #scoreboard #score_satan #abilities .default, html body #container #scoreboard #score_god #abilities .default {
-  background-image: url("../assets/src/points/point_default.png");
-}
-/* line 87, ../sass/all.scss */
-html body #container #scoreboard #score_satan #abilities .gold, html body #container #scoreboard #score_god #abilities .gold {
-  background-image: url("../assets/src/points/point_default_gold.png");
-}
-/* line 94, ../sass/all.scss */
-html body #container #scoreboard #score_satan h2 {
-  margin-left: 4em;
-}
-/* line 97, ../sass/all.scss */
-html body #container #scoreboard #score_satan #abilities .ability {
-  background-position: center right;
-}
-/* line 105, ../sass/all.scss */
-html body #container #scoreboard #score_god h2 {
-  margin-left: 4.5em;
-}
-/* line 109, ../sass/all.scss */
-html body #container #ability_panel {
-  width: 60%;
-}
-/* line 112, ../sass/all.scss */
-html body #container #ability_panel div {
-  height: 5em;
-  width: 100%;
-  margin-bottom: .5em;
-}
-/* line 118, ../sass/all.scss */
-html body #container #ability_panel p {
+html body #container #scoreboard #score_satan .abilities .ability h3, html body #container #scoreboard #score_god .abilities .ability h3 {
+  width: 85%;
+  height: 90px;
+  line-height: 90px;
+  vertical-align: middle;
   font-family: 'COUTURE';
-  color: white;
-  width: 50%;
-  padding-top: 5%;
-  padding-bottom: 5%;
-  display: block;
+  font-size: 16pt;
   text-align: center;
-  float: left;
+  background-repeat: no-repeat;
 }
-/* line 129, ../sass/all.scss */
-html body #container #ability_panel .satan {
-  background-color: red;
+/* line 95, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_inactive, html body #container #scoreboard #score_god .abilities .default_inactive {
+  background-image: url("../assets/src/points/point_default.png");
+  color: transparent;
+  text-shadow: 0 0 10px #c6dfec;
 }
-/* line 133, ../sass/all.scss */
-html body #container #ability_panel .god {
-  background-color: blue;
+/* line 100, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_inactive h3, html body #container #scoreboard #score_god .abilities .default_inactive h3 {
+  opacity: 0.1;
 }
-/* line 137, ../sass/all.scss */
-html body #container #ability_panel .active {
+/* line 103, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_active, html body #container #scoreboard #score_god .abilities .default_active {
+  color: #c6dfec;
+  text-shadow: none;
+}
+/* line 107, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_active h3, html body #container #scoreboard #score_god .abilities .default_active h3 {
   opacity: 1;
 }
-/* line 141, ../sass/all.scss */
-html body #container #ability_panel .inactive {
-  opacity: 0.5;
+/* line 111, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .gold_inactive, html body #container #scoreboard #score_god .abilities .gold_inactive {
+  background-image: url("../assets/src/points/point_default_gold.png");
+  color: transparent;
+  text-shadow: 0 0 10px #f9dd4a;
 }
-/* line 148, ../sass/all.scss */
+/* line 116, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .gold_inactive h3, html body #container #scoreboard #score_god .abilities .gold_inactive h3 {
+  opacity: 0.1;
+}
+/* line 121, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .gold_active, html body #container #scoreboard #score_god .abilities .gold_active {
+  color: #f9dd4a;
+  text-shadow: none;
+  background-image: url("../assets/src/points/point_gold.png");
+}
+/* line 126, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .gold_active h3, html body #container #scoreboard #score_god .abilities .gold_active h3 {
+  opacity: 1;
+}
+/* line 134, ../sass/all.scss */
+html body #container #scoreboard #score_satan h2 {
+  margin-left: 6.3em;
+}
+/* line 137, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .ability {
+  background-position: center right;
+  padding-left: 2.6em;
+}
+/* line 143, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_inactive h3, html body #container #scoreboard #score_satan .abilities .default_active h3 {
+  background-image: url("../assets/src/ability_l.png");
+}
+/* line 146, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .default_active {
+  background-image: url("../assets/src/points/point_red.png");
+}
+/* line 151, ../sass/all.scss */
+html body #container #scoreboard #score_satan .abilities .gold_inactive h3, html body #container #scoreboard #score_satan .abilities .gold_active h3 {
+  background-image: url("../assets/src/ability_l_gold.png");
+}
+/* line 157, ../sass/all.scss */
+html body #container #scoreboard #score_god h2 {
+  margin-left: 4.6em;
+}
+/* line 160, ../sass/all.scss */
+html body #container #scoreboard #score_god .abilities .ability {
+  background-position: center left;
+  padding-left: 2.8em;
+}
+/* line 166, ../sass/all.scss */
+html body #container #scoreboard #score_god .abilities .default_inactive h3, html body #container #scoreboard #score_god .abilities .default_active h3 {
+  background-image: url("../assets/src/ability_r.png");
+}
+/* line 169, ../sass/all.scss */
+html body #container #scoreboard #score_god .abilities .default_active {
+  background-image: url("../assets/src/points/point_blue.png");
+}
+/* line 174, ../sass/all.scss */
+html body #container #scoreboard #score_god .abilities .gold_inactive h3, html body #container #scoreboard #score_god .abilities .gold_active h3 {
+  background-image: url("../assets/src/ability_r_gold.png");
+}
+/* line 182, ../sass/all.scss */
 html .center {
   margin-left: auto;
   margin-right: auto;
+}
+/* line 187, ../sass/all.scss */
+html .clear {
+  clear: both;
+}
+/* line 191, ../sass/all.scss */
+html .no_text_shadow {
+  -webkit-transition: text-shadow 0.5s ease-in-out;
+  -moz-transition: text-shadow 0.5s ease-in-out;
+  -o-transition: text-shadow 0.5s ease-in-out;
+  -ms-transition: text-shadow 0.5s ease-in-out;
+  transition: text-shadow 0.5s ease-in-out;
+  text-shadow: none;
 }

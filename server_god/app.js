@@ -1,6 +1,6 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var ip = "172.30.33.186";
+var ip = "172.30.27.187";
 
 var express = require('express');
 var app = express();
@@ -19,8 +19,6 @@ var controller = new Leap.Controller({enableGestures: true});
 
 app.use(express.static(__dirname + '/public'));
 app.get('localhost:'+currentServerPort, function(req, res){
-    ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
-    console.log('[app.js] server god. requested root');
     res.sendfile(__dirname + '/public/index.html');
 });
 
@@ -37,6 +35,7 @@ client.on('connect', function(){
 
     ws.on('message', function(data, flags){
         //send data to other server
+        //console.log('[app.js] god server. send leap data: '+Math.round(Math.random()*100)/100)
         client.emit('LEAP_DATA', data);
     });
 
@@ -54,7 +53,6 @@ client.on('connect', function(){
                 direction,
                 normal;
 
-            console.log(gestures);
             if(gestures.length > 0) {
                 for (var i = 0; i < godFrame.gestures.length; i++) {
                     var gesture = godFrame.gestures[i];
@@ -85,7 +83,6 @@ client.on('connect', function(){
                 }
             }
 
-            console.log('isHorizontalSwipe '+isHorizontalSwipe);
             if(isHorizontalSwipe || isVerticalSwipe)
             {
                 console.log('>>>>>>>> true');
@@ -98,10 +95,9 @@ client.on('connect', function(){
     //receive data from opponent server
     client.on('GOD_DATA', function(data){
         console.log('[app.js] server god. received score data '+data);
-        console.log('[app.js] server god. received score data '+data[0]);
-        console.log('[app.js] server god. received score data '+data[1]);
-        score1 = data[0];
-        score2 = data[1];
+        //$('#score_satan_num').text(data['score1']);
+        //$('#score_god_num').text(data['score2']);
+        io.sockets.emit('update', data);
     });
 });
 

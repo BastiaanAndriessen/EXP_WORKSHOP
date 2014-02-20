@@ -57,11 +57,11 @@ html{
       }
 
       #scoreboard{
-        width: 660px;
+        width: 750px;
 
         h2{
           width: 135px;
-          margin-bottom: 3em;
+          margin-bottom: 4em;
           font-family: 'bebas';
           font-size: 15pt;
           color: white;
@@ -71,75 +71,108 @@ html{
         #score_satan, #score_god{
           width: 50%;
           float: left;
-          height: 300px;
 
-          #abilities{
+          .abilities{
             width: 100%;
 
             .ability{
               background-repeat: no-repeat;
+              height: 90px;
+              margin-bottom: 1em;
+
+              h3{
+                width: 85%;
+                height: 90px;
+                line-height: 90px;
+                vertical-align: middle;
+                font-family: 'COUTURE';
+                font-size: 16pt;
+                text-align: center;
+                background-repeat: no-repeat;
+              }
             }
 
-            .default{
+            .default_inactive{
               background-image: url('../assets/src/points/point_default.png');
+              color: transparent;
+              text-shadow: 0 0 10px rgba(198,223,236,1);
+
+              h3{opacity: 0.1;}
             }
 
-            .gold{
+            .default_active{
+              color: #c6dfec;
+              text-shadow: none;
+
+              h3{opacity: 1;}
+            }
+
+            .gold_inactive{
               background-image: url('../assets/src/points/point_default_gold.png');
+              color: transparent;
+              text-shadow: 0 0 10px rgba(249,221,74,1);
+
+              h3{
+                opacity: 0.1;
+              }
+            }
+
+            .gold_active{
+              color: #f9dd4a;
+              text-shadow: none;
+              background-image: url('../assets/src/points/point_gold.png');
+
+              h3{
+                opacity: 1;
+              }
             }
           }
         }
 
         #score_satan{
-          h2{margin-left: 4em;}
+          h2{margin-left: 6.3em;}
 
-          #abilities{
+          .abilities{
             .ability{
               background-position: center right;
+              padding-left: 2.6em;
             }
 
+            .default_inactive, .default_active{
+              h3{background-image: url('../assets/src/ability_l.png');}
+            }
+
+            .default_active{
+              background-image: url('../assets/src/points/point_red.png');
+            }
+
+            .gold_inactive, .gold_active{
+              h3{background-image: url('../assets/src/ability_l_gold.png');}
+            }
           }
         }
 
         #score_god{
-          h2{margin-left: 4.5em;}
-        }
-      }
+          h2{margin-left: 4.6em;}
 
-      #ability_panel{
-        width: 60%;
+          .abilities{
+            .ability{
+              background-position: center left;
+              padding-left: 2.8em;
+            }
 
-        div{
-          height: 5em;
-          width: 100%;
-          margin-bottom: .5em;
-        }
+            .default_inactive, .default_active{
+              h3{background-image: url('../assets/src/ability_r.png');}
+            }
 
-        p{
-          font-family: 'COUTURE';
-          color: white;
-          width: 50%;
-          padding-top: 5%;
-          padding-bottom: 5%;
-          display: block;
-          text-align: center;
-          float: left;
-        }
+            .default_active{
+              background-image: url('../assets/src/points/point_blue.png');
+            }
 
-        .satan{
-          background-color: rgb(255,0,0);
-        }
-
-        .god{
-          background-color: rgb(0,0,255);
-        }
-
-        .active{
-          opacity: 1;
-        }
-
-        .inactive{
-          opacity: 0.5;
+            .gold_inactive, .gold_active{
+              h3{background-image: url('../assets/src/ability_r_gold.png');}
+            }
+          }
         }
       }
     }
@@ -148,5 +181,18 @@ html{
   .center{
     margin-left:auto;
     margin-right: auto;
+  }
+
+  .clear{
+    clear: both;
+  }
+
+  .no_text_shadow{
+    -webkit-transition:text-shadow 0.5s ease-in-out;
+    -moz-transition:text-shadow 0.5s ease-in-out;
+    -o-transition:text-shadow 0.5s ease-in-out;
+    -ms-transition:text-shadow 0.5s ease-in-out;
+    transition:text-shadow 0.5s ease-in-out;
+    text-shadow:none;
   }
 }
