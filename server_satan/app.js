@@ -35,6 +35,11 @@ var isTiltActive = false;
 var isCooldownTilt = false;
 var isCooldownEarthquake = false;
 
+var globalSocket;
+
+var vulcanoActivated;
+var waterActivated;
+
 
 
 
@@ -58,6 +63,8 @@ board.on('ready', function() {
     //server
     io.sockets.on('connection', function (socket) {
         console.log('[app.js] satan server. connection established.');
+        globalSocket = socket;
+        console.log('[app.js] globalSocket '+globalSocket);
 
         socket.on('LEAP_DATA', function (data) {
             //io.sockets.emit('leap', "leap motion data received: "+leapMotionDataReceived);
@@ -140,7 +147,7 @@ board.on('ready', function() {
 
                         tiltActivated = false;
                         tiltCountTouched = 0;
-                        updateScores();
+                        updateScores(socket);
                     }
                 }
             
@@ -155,7 +162,6 @@ board.on('ready', function() {
                 }
             }*/
         });
-});
 
 
     led8 = new five.Led(8);
@@ -222,8 +228,6 @@ board.on('ready', function() {
         
     });
 
-
-  
     var sensor = new five.Sensor("A0");
     var interval = 0;
     var oldValue = 100;
@@ -244,15 +248,22 @@ board.on('ready', function() {
                     //console.log('[app.js] play pinball1')
                 });
                 player.play();
-                points += 50;
+                if(waterActivated)
+                {
+                    points += 275;
+                }
+                else
+                {
+                    points += 35;
+                }
                 console.log('[app.js] points are '+points);
                 abilities2 += 1;
                 oldValue = this.value;
-                updateScores();
+                updateScores(socket);
             }
             var interval2 = setInterval(function(){
                 abilities2 -= 1;
-                updateScores();
+                updateScores(socket);
                 clearInterval(interval2);
                 led8.off();
             }, 2000);
@@ -283,11 +294,18 @@ board.on('ready', function() {
                    // console.log('[app.js] play pinball1')
                 });
                 player.play();
-                points += 50;
+                if(vulcanoActivated)
+                {
+                    points += 275;
+                }
+                else
+                {
+                    points += 35;
+                }
                 console.log('[app.js] points are '+points);
                 abilities1 += 1;
                 oldValuePush = this.value;
-                updateScores();
+                updateScores(socket);
                 if(rot>360)
                 {
                     rot=0;
@@ -297,7 +315,7 @@ board.on('ready', function() {
             }
             var intervalPush2 = setInterval(function(){
                 abilities1 -= 1;
-                updateScores();
+                updateScores(socket);
                 clearInterval(intervalPush2);
                 led8.off();
             }, 2000);
@@ -307,8 +325,6 @@ board.on('ready', function() {
             oldValuePush = this.value;
         }
     });
-
-    
 
     var contServo = new five.Servo(9);
     rot = 0;
@@ -344,8 +360,27 @@ board.on('ready', function() {
             });
             player.play();
             points += 100;
-            updateScores();
-            if(countTouched>2)
+            updateScores(socket);
+            if(countTouched<4)
+            {
+                abilities1 += 1;
+                countTouched += 1:
+                if(countTouched == 1)
+                {
+                    earthquakeActivated = true;
+                }
+                if(countTouched == 2)
+                {
+                    vulcanoActivated = true;
+                }
+                updateScores(socket);
+            }
+            else
+            {
+                abilities1 += 0;
+                countTouched += 0;
+            }
+            /*if(countTouched>2)
             {
                 countTouched+=0;
                 if(earthquakeActivated == false)
@@ -354,12 +389,12 @@ board.on('ready', function() {
 
                 }
                 earthquakeActivated = true;
-                updateScores();
+                updateScores(socket);
             }
             else
             {
                 countTouched += 1;
-            }
+            }*/
 
 
 
@@ -368,48 +403,38 @@ board.on('ready', function() {
         }
     });
 
-    //veranderen naar andere pin
-    /*var pinTilt = new five.Pin(4);
-    pinTilt.read(function(value) {
-        console.log("[app.js] value button is "+value);
-        if(value == 1)
-        {
-            var player = new Player('pinball1.mp3');
-
-            player.play(function(err, player){
-                console.log('[app.js] play pinball1')
-            });
-            player.play();
-            playerTwoPoints += 100;
-            if(countTouched>2)
-            {
-                tiltCountTouched+=0;
-                tiltActivated = true;
-
-
-            }
-            else
-            {
-                tiltCountTouched += 1;
-            }
-            console.log("[app.js] countTouched is "+tiltCountTouched);
-            console.log("[app.js] your points are "+playerTwoPoints);
-        }
-    });*/
-
     var pinTwo = new five.Pin(2);
     pinTwo.read(function(value) {
         //console.log("[app.js] value button is "+value);
         if(value == 1)
         {
             playerTwoPoints += 100;
-            updateScores();
+            updateScores(socket);
             var player = new Player('pinball1.mp3');
             player.play(function(err, player){
                 //console.log('[app.js] play pinball1')
             });
             player.play();
-            if(tiltCountTouched>2)
+            if(tiltCountTouched < 4)
+            {
+                abilities2 += 1;
+                tiltCountTouched += 1;
+                if(tiltCountTouched == 1)
+                {
+                    tiltActivated = true;
+                }
+                if(tiltCountTouched == 2)
+                {
+                    waterActivated = true;
+                }
+                updateScores(socket);
+            }
+            else
+            {
+                tiltCountTouched += 0;
+                abilities2 += 0;
+            }
+            /*if(tiltCountTouched>2)
             {
                 tiltCountTouched+=0;
                 if(tiltActivated == false)
@@ -417,20 +442,20 @@ board.on('ready', function() {
                     abilities2 += 1;
                 }
                 tiltActivated = true;
-                updateScores();
+                updateScores(socket);
                 //console.log('>>>>>>>>>> tiltActivated');
 
             }
             else
             {
                 tiltCountTouched += 1;
-            }
+            }*/
             console.log("[app.js] countTouched is "+tiltCountTouched);
             console.log("[app.js] your points are "+playerTwoPoints);
         }
     });
 
-        Leap.loop({enableGestures: true},
+    Leap.loop({enableGestures: true},
         function(frame)
         {
             var gestures = frame.gestures,
@@ -474,12 +499,13 @@ board.on('ready', function() {
                                 earthquakeActivated = false;
                                 abilities1 -= 1;
                                 countTouched = 0;
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownEarthquake = true;
                                 var cooldownInterval = setInterval(function(){
                                     clearInterval(cooldownInterval);
                                     isCooldownEarthquake = false;
+                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
                                 }, 10000);
                               }
                           } else {
@@ -501,12 +527,13 @@ board.on('ready', function() {
                                 earthquakeActivated = false;
                                 abilities1 -= 1;
                                 countTouched = 0;
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownEarthquake = true;
                                 var cooldownInterval = setInterval(function(){
                                     clearInterval(cooldownInterval);
                                     isCooldownEarthquake = false;
+                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
                                 }, 10000);
                               }
                           }
@@ -531,12 +558,13 @@ board.on('ready', function() {
                                 countTouched = 0;
                                 abilities1 -= 1;
 
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownEarthquake = true;
                                 var cooldownInterval = setInterval(function(){
                                     clearInterval(cooldownInterval);
                                     isCooldownEarthquake = false;
+                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
                                 }, 10000);
                               }
                           } else {
@@ -559,12 +587,13 @@ board.on('ready', function() {
                                 abilities1 -= 1;
 
                                 countTouched = 0;
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownEarthquake = true;
                                 var cooldownInterval = setInterval(function(){
                                     clearInterval(cooldownInterval);
                                     isCooldownEarthquake = false;
+                                    console.log('[app.js] cooldown false'+isCooldownEarthquake);
                                 }, 10000);
 
                               }
@@ -628,7 +657,7 @@ if(godFrame)
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
                                 abilities2 -= 1;
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownTilt = true;
                                 var cooldownInterval = setInterval(function(){
@@ -645,7 +674,7 @@ if(godFrame)
                                 player.play(function(err, player){
                                     //console.log('[app.js] play pinball2')
                                 });
-                                player.play();
+                                player.play(socket);
                                 led8.on();
                                 var gestureInterval = setInterval(function(){
                                     clearInterval(gestureInterval);
@@ -655,7 +684,7 @@ if(godFrame)
                                 tiltActivated = false;
                                 tiltCountTouched = 0;
                                 abilities2 -= 1;
-                                updateScores();
+                                updateScores(socket);
 
                                 isCooldownTilt = true;
                                 var cooldownInterval = setInterval(function(){
@@ -682,7 +711,7 @@ if(godFrame)
                         tiltActivated = false;
                         tiltCountTouched = 0;
                         abilities2 -= 1;
-                        updateScores();
+                        updateScores(socket);
 
                         isCooldownTilt = true;
                         var cooldownInterval = setInterval(function(){
@@ -699,44 +728,21 @@ if(godFrame)
 
 }
 
-//updateScore
-function updateScores()
+    });
+
+        
+
+
+
+ //updateScore
+function updateScores(socket)
 {
     console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // '+abilities1+' // '+abilities2);
 
-    io.sockets.on('connection', function (socket) {
-        socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "tilt": tiltActivated, "earthquake":earthquakeActivated});
-        console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
-    });
+    console.log('>>>>> GOD DATA SEND '+globalSocket);
+    socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
+    console.log('[app.js] JSON IS >>>>>> '+JSON.stringify({"score1":points ,"score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2}));
 }
-
-
-//receive data from other server
-/*sock.connect('tcp://'+playerIp+':'+currentServerPort);
-console.log('[app.js] satan server: worker connected to port:'+currentServerPort);
-
-sock.on('message', function(msg){
-    //client connection
-    leapMotionDataReceived++;
-    //console.log('[app.js] satan server: received data: %s', msg.toString()+' '+leapMotionDataReceived);
-    io.sockets.emit('message', "leap motion data received: "+leapMotionDataReceived);
-});*/
-
-
-//connect to opponent server
-/*client.on('connect', function(){
-    console.log('[app.js] server satan connected to opponent server');
-
-    //connect to client
-    io.sockets.on('connection', function (socket) {
-        //catch client events
-        socket.on('client', function(data) {
-            console.log('clientserver data', data);
-            //send data to opponent server
-            client.emit('server custom event', { my: 'data' });
-        });
-    });
-});*/
 
 
 server.listen(currentServerPort);
