@@ -71,46 +71,104 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   font-style: normal;
 }
 
-/* line 16, ../sass/all.scss */
+@font-face {
+  font-family: 'bebas';
+  src: url("../assets/font/bebas-webfont.eot");
+  src: url("../assets/font/bebas-webfont.eot") format("embedded-opentype"), url("../assets/font/bebas-webfont.woff") format("woff"), url("../assets/font/bebas-webfont.ttf") format("truetype"), url("../assets/font/bebas-webfont.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* line 27, ../sass/all.scss */
 html {
   height: 100%;
   overflow-y: hidden;
   overflow-x: hidden;
 }
-/* line 21, ../sass/all.scss */
+/* line 32, ../sass/all.scss */
 html body {
   border: 0;
   margin: 0;
   padding: 0;
 }
-/* line 26, ../sass/all.scss */
-html body #container {
-  width: 1024px;
-  height: 768px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin: -250px 0 0 -512px;
-}
-/* line 34, ../sass/all.scss */
-html body #container hgroup {
-  width: 80%;
-}
 /* line 37, ../sass/all.scss */
-html body #container hgroup h1 {
+html body #container {
+  /*width: 1024px;
+  height:768px;
+  position:absolute;
+  left:50%;
+  top:50%;
+  margin:-250px 0 0 -512px;*/
+  width: 100%;
+  height: 100%;
+  min-height: 1200px;
+  padding-top: 7.5em;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-image: url("../assets/src/bg_god.jpg");
+  background-color: black;
+}
+/* line 55, ../sass/all.scss */
+html body #container > hgroup {
+  display: none;
+}
+/* line 59, ../sass/all.scss */
+html body #container #scoreboard {
+  width: 660px;
+}
+/* line 62, ../sass/all.scss */
+html body #container #scoreboard h2 {
+  width: 135px;
+  font-family: 'bebas';
+  font-size: 15pt;
+  color: white;
   text-align: center;
 }
-/* line 42, ../sass/all.scss */
+/* line 70, ../sass/all.scss */
+html body #container #scoreboard #score_satan, html body #container #scoreboard #score_god {
+  width: 50%;
+  float: left;
+  height: 300px;
+}
+/* line 75, ../sass/all.scss */
+html body #container #scoreboard #score_satan #abilities, html body #container #scoreboard #score_god #abilities {
+  width: 100%;
+}
+/* line 78, ../sass/all.scss */
+html body #container #scoreboard #score_satan #abilities .ability, html body #container #scoreboard #score_god #abilities .ability {
+  background-repeat: no-repeat;
+}
+/* line 82, ../sass/all.scss */
+html body #container #scoreboard #score_satan #abilities .default, html body #container #scoreboard #score_god #abilities .default {
+  background-image: url("../assets/src/points/point_default.png");
+}
+/* line 86, ../sass/all.scss */
+html body #container #scoreboard #score_satan #abilities .gold, html body #container #scoreboard #score_god #abilities .gold {
+  background-image: url("../assets/src/points/point_default_gold.png");
+}
+/* line 93, ../sass/all.scss */
+html body #container #scoreboard #score_satan h2 {
+  margin-left: 4em;
+}
+/* line 96, ../sass/all.scss */
+html body #container #scoreboard #score_satan #abilities .ability {
+  background-position: center right;
+}
+/* line 104, ../sass/all.scss */
+html body #container #scoreboard #score_god h2 {
+  margin-left: 4.5em;
+}
+/* line 108, ../sass/all.scss */
 html body #container #ability_panel {
   width: 60%;
 }
-/* line 45, ../sass/all.scss */
+/* line 111, ../sass/all.scss */
 html body #container #ability_panel div {
   height: 5em;
   width: 100%;
   margin-bottom: .5em;
 }
-/* line 51, ../sass/all.scss */
+/* line 117, ../sass/all.scss */
 html body #container #ability_panel p {
   font-family: 'COUTURE';
   color: white;
@@ -121,23 +179,23 @@ html body #container #ability_panel p {
   text-align: center;
   float: left;
 }
-/* line 62, ../sass/all.scss */
+/* line 128, ../sass/all.scss */
 html body #container #ability_panel .satan {
   background-color: red;
 }
-/* line 66, ../sass/all.scss */
+/* line 132, ../sass/all.scss */
 html body #container #ability_panel .god {
   background-color: blue;
 }
-/* line 70, ../sass/all.scss */
+/* line 136, ../sass/all.scss */
 html body #container #ability_panel .active {
   opacity: 1;
 }
-/* line 74, ../sass/all.scss */
+/* line 140, ../sass/all.scss */
 html body #container #ability_panel .inactive {
   opacity: 0.5;
 }
-/* line 81, ../sass/all.scss */
+/* line 147, ../sass/all.scss */
 html .center {
   margin-left: auto;
   margin-right: auto;

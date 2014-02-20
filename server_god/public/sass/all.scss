@@ -13,6 +13,17 @@
   font-style: normal;
 }
 
+@font-face{
+  font-family: 'bebas';
+  src: url('../assets/font/bebas-webfont.eot');
+  src: url('../assets/font/bebas-webfont.eot') format('embedded-opentype'),
+  url('../assets/font/bebas-webfont.woff') format('woff'),
+  url('../assets/font/bebas-webfont.ttf') format('truetype'),
+  url('../assets/font/bebas-webfont.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html{
   height: 100%;
   overflow-y: hidden;
@@ -24,18 +35,73 @@ html{
     padding: 0;
 
     #container{
-      width: 1024px;
+      /*width: 1024px;
       height:768px;
       position:absolute;
       left:50%;
       top:50%;
-      margin:-250px 0 0 -512px;
+      margin:-250px 0 0 -512px;*/
 
-      hgroup{
-        width: 80%;
+      width: 100%;
+      height: 100%;
+      min-height: 1200px;
+      padding-top: 7.5em;
 
-        h1{
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-image: url('../assets/src/bg_god.jpg');
+      background-color: black;
+
+      >hgroup{
+        display: none;
+      }
+
+      #scoreboard{
+        width: 660px;
+
+        h2{
+          width: 135px;
+          font-family: 'bebas';
+          font-size: 15pt;
+          color: white;
           text-align: center;
+        }
+
+        #score_satan, #score_god{
+          width: 50%;
+          float: left;
+          height: 300px;
+
+          #abilities{
+            width: 100%;
+
+            .ability{
+              background-repeat: no-repeat;
+            }
+
+            .default{
+              background-image: url('../assets/src/points/point_default.png');
+            }
+
+            .gold{
+              background-image: url('../assets/src/points/point_default_gold.png');
+            }
+          }
+        }
+
+        #score_satan{
+          h2{margin-left: 4em;}
+
+          #abilities{
+            .ability{
+              background-position: center right;
+            }
+
+          }
+        }
+
+        #score_god{
+          h2{margin-left: 4.5em;}
         }
       }
 

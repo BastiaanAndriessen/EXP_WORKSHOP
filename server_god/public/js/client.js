@@ -7,6 +7,8 @@ function init()
     socket.on('message', function(data){
         updateMessageLog(data);
     });
+
+
 }
 
 function updateMessageLog(data){
