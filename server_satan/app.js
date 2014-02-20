@@ -359,17 +359,17 @@ board.on('ready', function() {
                 //console.log('[app.js] play pinball1')
             });
             player.play();
-            points += 100;
+            points += 125;
             updateScores(socket);
             if(countTouched<4)
             {
                 abilities1 += 1;
                 countTouched += 1;
-                if(countTouched == 1)
+                if(countTouched == 4)
                 {
                     earthquakeActivated = true;
                 }
-                if(countTouched == 2)
+                if(countTouched == 1)
                 {
                     vulcanoActivated = true;
                 }
@@ -408,7 +408,7 @@ board.on('ready', function() {
         //console.log("[app.js] value button is "+value);
         if(value == 1)
         {
-            playerTwoPoints += 100;
+            playerTwoPoints += 125;
             updateScores(socket);
             var player = new Player('pinball1.mp3');
             player.play(function(err, player){
@@ -419,7 +419,7 @@ board.on('ready', function() {
             {
                 abilities2 += 1;
                 tiltCountTouched += 1;
-                if(tiltCountTouched == 1)
+                if(tiltCountTouched == 4)
                 {
                     tiltActivated = true;
                 }
