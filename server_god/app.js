@@ -1,6 +1,6 @@
 var currentServerPort = 1337;
 var opponentServerPort = 1336;
-var ip = "172.30.27.187";
+var ip = "172.30.27.152";
 var latestGodData = 0;
 
 var express = require('express');

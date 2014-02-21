@@ -23,7 +23,7 @@ function init()
         }
     });
 
-    socket.on('UPDATE', function(data){
+    socket.on('GOD_DATA', function(data){
         if(score1 < data['score1']){
             score1 = parseFloat(data['score1']);
             setScoreInterval($('#score_satan_num'), currentScore1, score1, interval);

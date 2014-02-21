@@ -53,8 +53,8 @@ function init()
 
     $("#ip").on('click', switchToForm);
     $(window).on('keyup', function(e){
+        e.preventDefault();
         if(e.keyCode == 13){
-            e.preventDefault();
             updateIp();
         }
     })

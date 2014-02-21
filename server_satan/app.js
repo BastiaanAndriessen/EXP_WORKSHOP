@@ -573,8 +573,8 @@ board.on('ready', function() {
 function updateScores(socket)
 {
     console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // '+abilities1+' // '+abilities2);
-    socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
-    io.sockets.emit('UPDATE', data);
+    //socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
+    io.sockets.emit('GOD_DATA', data);
 }
 
 
