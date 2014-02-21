@@ -23,7 +23,18 @@ function init()
         }
     });
 
+    socket.on('DISCONNECT', function(data){
+        console.log('[client.js] disconnected to opponent server');
+        connectedToServer = false;
+        $('#server_status').removeClass('green').removeClass('red').addClass('red').text('connection status: disconnected');
+    });
+
     socket.on('GOD_DATA', function(data){
+        if(!connectedToServer){
+            connectedToServer = true;
+            $('#server_status').removeClass('red').removeClass('green').addClass('green').text('connection status: connected');
+        }
+
         if(score1 < data['score1']){
             score1 = parseFloat(data['score1']);
             setScoreInterval($('#score_satan_num'), currentScore1, score1, interval);

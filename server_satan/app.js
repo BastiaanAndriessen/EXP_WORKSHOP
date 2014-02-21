@@ -43,47 +43,49 @@ app.get('http://'+ip+':'+currentServerPort, function(req, res){
 
 //code arduino en leap
 board.on('ready', function() {
-    led6 = new five.Led(6);
-    led7 = new five.Led(7);
-    led8 = new five.Led(8);
-    led12 = new five.Led(12);
-    led13 = new five.Led(13);
 
-    var servo = new five.Servo({
-        pin: 10
-    });
-
-    var sensor = new five.Sensor("A0");
-    var interval = 0;
-    var oldValue = 100;
-
-    var sensorPush = new five.Sensor("A1");
-    var intervalPush = 0;
-    var oldValuePush = 100;
-
-    var contServo = new five.Servo(9);
-    var rot = 0;
-    var contServoInterval = setInterval(function(){
-        if(rot>360){rot=0;}
-        contServo.to(rot);
-        rot+=359;
-    }, 800);
-
-    var contFan = new five.Servo(11);
-    var contRot = 0;
-    var contFanInterval = setInterval(function(){
-        if(contRot>360){contRot=0;}
-        contFan.to(contRot);
-        contRot+=359;
-    }, 100);
-
-    //input vars
-    var pin = new five.Pin(4);
-    var pinTwo = new five.Pin(2);
 
     //server
     io.sockets.on('connection', function (socket){
         updateScores(socket);
+
+        led6 = new five.Led(6);
+        led7 = new five.Led(7);
+        led8 = new five.Led(8);
+        led12 = new five.Led(12);
+        led13 = new five.Led(13);
+
+        var servo = new five.Servo({
+            pin: 10
+        });
+
+        var sensor = new five.Sensor("A0");
+        var interval = 0;
+        var oldValue = 100;
+
+        var sensorPush = new five.Sensor("A1");
+        var intervalPush = 0;
+        var oldValuePush = 100;
+
+        var contServo = new five.Servo(9);
+        var rot = 0;
+        var contServoInterval = setInterval(function(){
+            if(rot>360){rot=0;}
+            contServo.to(rot);
+            rot+=359;
+        }, 800);
+
+        var contFan = new five.Servo(11);
+        var contRot = 0;
+        var contFanInterval = setInterval(function(){
+            if(contRot>360){contRot=0;}
+            contFan.to(contRot);
+            contRot+=359;
+        }, 100);
+
+        //input vars
+        var pin = new five.Pin(4);
+        var pinTwo = new five.Pin(2);
 
         console.log('[app.js] satan server. connection established.');
         io.sockets.emit('CONNECTED', 'connected');
@@ -95,9 +97,16 @@ board.on('ready', function() {
             led8.off();
             led12.off();
             led13.off();
+            contRot = 0;
+            rot = 0;
+            clearInterval(contFanInterval);
+            clearInterval(contServoInterval);
             servo.stop();
             contServo.stop();
             contFan.stop();
+            console.log('[app.js] god server disconnected to opponent server');
+            io.sockets.emit('DISCONNECT', 'disconnect');
+
         });
 
         socket.on('LEAP_DATA', function (data) {
@@ -105,7 +114,7 @@ board.on('ready', function() {
             var godRightHandId = 0;
             var godLeftHandId = 0;
 
-            if(godFrame.hands.length>0){
+            if(godFrame.hands.length && godFrame.hands.length>0){
                 if(godFrame.hands.length < 2){
                     godRightHandId = godFrame.hands[0].id;
                 }else{
@@ -573,10 +582,8 @@ board.on('ready', function() {
 function updateScores(socket)
 {
     console.log('satan server. send score data to opponent server: '+points+' // '+playerTwoPoints+' // '+abilities1+' // '+abilities2);
-    //socket.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
-    io.sockets.emit('GOD_DATA', data);
+    io.sockets.emit('GOD_DATA', {"score1":points ,"score2": playerTwoPoints, "score2": playerTwoPoints, "abilities1": abilities1, "abilities2":abilities2});
 }
 
 
 server.listen(currentServerPort);
-
