@@ -2,6 +2,7 @@ $(document).ready(init);
 
 var socket;
 var interval, interval2;
+var boardReady = false;
 var connectedToServer = false;
 
 var score1 = 0;
@@ -15,6 +16,13 @@ var abilities2 = 0;
 function init()
 {
     socket = io.connect(':1336');
+
+    socket.on('BOARD_READY', function(data){
+        if(!boardReady){
+            boardReady = true;
+            $('#board_status').removeClass('red').removeClass('green').addClass('green').text('arduino status: connected');
+        }
+    });
 
     socket.on('CONNECTED', function(data){
         if(!connectedToServer){

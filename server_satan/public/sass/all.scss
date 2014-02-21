@@ -202,12 +202,13 @@ html{
         }
       }
 
-      #server_status{
+      .status{
         width: 40%;
-        height: 30px;
+        height: 20px;
         font-family: 'COUTURE';
         font-size: 8pt;
         text-align: center;
+        clear: both;
       }
     }
   }

@@ -43,10 +43,14 @@ app.get('http://'+ip+':'+currentServerPort, function(req, res){
 
 //code arduino en leap
 board.on('ready', function() {
-
+    var boardReadyInterval = setInterval(function(){
+        io.sockets.emit('BOARD_READY');
+    }, 2000);
 
     //server
     io.sockets.on('connection', function (socket){
+        clearInterval(boardReadyInterval);
+        io.sockets.emit('BOARD_READY');
         updateScores(socket);
 
         led6 = new five.Led(6);
@@ -88,7 +92,7 @@ board.on('ready', function() {
         var pinTwo = new five.Pin(2);
 
         console.log('[app.js] satan server. connection established.');
-        io.sockets.emit('CONNECTED', 'connected');
+        io.sockets.emit('CONNECTED');
 
         socket.on('disconnect', function(){
             console.log(">>>>> disconnect");

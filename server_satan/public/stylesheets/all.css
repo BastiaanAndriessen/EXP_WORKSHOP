@@ -260,27 +260,28 @@ html body #container #opponent_ip form input {
   text-align: center;
 }
 /* line 205, ../sass/all.scss */
-html body #container #server_status {
+html body #container .status {
   width: 40%;
-  height: 30px;
+  height: 20px;
   font-family: 'COUTURE';
   font-size: 8pt;
   text-align: center;
+  clear: both;
 }
-/* line 215, ../sass/all.scss */
+/* line 216, ../sass/all.scss */
 html .no_display {
   display: none;
 }
-/* line 219, ../sass/all.scss */
+/* line 220, ../sass/all.scss */
 html .center {
   margin-left: auto;
   margin-right: auto;
 }
-/* line 224, ../sass/all.scss */
+/* line 225, ../sass/all.scss */
 html .clear {
   clear: both;
 }
-/* line 228, ../sass/all.scss */
+/* line 229, ../sass/all.scss */
 html .no_text_shadow {
   -webkit-transition: text-shadow 0.5s ease-in-out;
   -moz-transition: text-shadow 0.5s ease-in-out;
@@ -289,11 +290,11 @@ html .no_text_shadow {
   transition: text-shadow 0.5s ease-in-out;
   text-shadow: none;
 }
-/* line 237, ../sass/all.scss */
+/* line 238, ../sass/all.scss */
 html .red {
   color: red;
 }
-/* line 238, ../sass/all.scss */
+/* line 239, ../sass/all.scss */
 html .green {
   color: green;
 }
